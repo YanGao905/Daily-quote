@@ -1,5 +1,5 @@
 // 日剧经典台词数据库
-// 每天一句，包含日文、中文翻译、图片和出处
+// 每天一句，包含日文、中文翻译、图片、音乐和出处
 const quotes = [
     {
         id: 1,
@@ -7,7 +7,8 @@ const quotes = [
         chinese: "人生啊，也会有需要放长假的时候",
         drama: "悠长假期",
         year: 1996,
-        image: "images/long-vacation.png"
+        image: "images/long-vacation.png",
+        music: "music/long-vacation.mp3"
     },
     {
         id: 2,

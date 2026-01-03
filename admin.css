@@ -228,10 +228,54 @@ body {
     position: relative;
 }
 
+.quote-card.is-default {
+    border-color: #ffd700;
+    background: #fffef0;
+}
+
 .quote-card:hover {
     border-color: #212121;
     transform: translateY(-4px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* 星标按钮 */
+.star-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.star-btn:hover {
+    transform: scale(1.1);
+    border-color: #ffd700;
+}
+
+.star-btn.active {
+    background: #ffd700;
+    border-color: #ffd700;
+    animation: starPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes starPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
 }
 
 .quote-card-image {

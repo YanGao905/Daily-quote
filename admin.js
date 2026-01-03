@@ -3,6 +3,23 @@ let quotes = [];
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
+    // 临时清空localStorage（解决之前上传大文件导致的超限问题）
+    const saved = localStorage.getItem('dailyQuotes');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            // 检查是否有base64音乐数据（说明是旧数据）
+            const hasBase64Music = data.some(q => q.music && q.music.startsWith('data:'));
+            if (hasBase64Music) {
+                console.log('检测到包含base64音乐的旧数据，清空localStorage');
+                localStorage.removeItem('dailyQuotes');
+                alert('检测到旧的音乐数据（占用空间过大），已清空。请重新添加台词，记得只填写音乐路径，不要上传文件。');
+            }
+        } catch(e) {
+            console.error('localStorage数据解析失败:', e);
+        }
+    }
+    
     loadQuotes();
     renderQuotesList();
     setupEventListeners();
@@ -31,9 +48,27 @@ function loadQuotes() {
 
 // 保存数据
 function saveQuotes() {
-    localStorage.setItem('dailyQuotes', JSON.stringify(quotes));
-    // 同时更新 quotes.js 文件的提示
-    updateQuotesFile();
+    try {
+        const jsonString = JSON.stringify(quotes);
+        const sizeInMB = (jsonString.length / 1024 / 1024).toFixed(2);
+        console.log('准备保存数据，大小:', sizeInMB, 'MB');
+        
+        if (jsonString.length > 5 * 1024 * 1024) {
+            throw new Error('数据过大（超过5MB），无法保存到localStorage');
+        }
+        
+        localStorage.setItem('dailyQuotes', jsonString);
+        console.log('数据保存成功');
+        updateQuotesFile();
+    } catch (error) {
+        console.error('保存失败:', error);
+        if (error.name === 'QuotaExceededError' || error.message.includes('quota')) {
+            alert('存储空间不足！\n可能原因：\n1. 上传了过大的文件\n2. 累积数据过多\n\n建议：删除一些旧数据，或使用更小的图片');
+        } else {
+            alert('保存失败: ' + error.message);
+        }
+        throw error;
+    }
 }
 
 // 更新 quotes.js 文件（生成代码供复制）
@@ -59,6 +94,12 @@ function setupEventListeners() {
     // 图片上传预览
     document.getElementById('image-upload').addEventListener('change', handleImageUpload);
     
+    // 音乐上传预览 - 已禁用，检查元素是否存在
+    const musicUpload = document.getElementById('music-upload');
+    if (musicUpload) {
+        musicUpload.addEventListener('change', handleMusicUpload);
+    }
+    
     // 导出数据
     document.getElementById('export-btn').addEventListener('click', exportData);
     
@@ -83,8 +124,11 @@ function handleFormSubmit(e) {
     const year = parseInt(document.getElementById('year').value);
     const imageUrl = document.getElementById('image-url').value.trim();
     const imageFile = document.getElementById('image-upload').files[0];
+    const musicUrl = document.getElementById('music').value.trim();
+    const musicUploadElement = document.getElementById('music-upload');
+    const musicFile = musicUploadElement ? musicUploadElement.files[0] : null;
     
-    console.log('表单数据:', { japanese, chinese, drama, year, imageUrl, hasFile: !!imageFile });
+    console.log('表单数据:', { japanese, chinese, drama, year, imageUrl, musicUrl, hasImageFile: !!imageFile, hasMusicFile: !!musicFile });
     
     // 验证必填字段
     if (!japanese || !chinese || !drama || !year) {
@@ -92,60 +136,98 @@ function handleFormSubmit(e) {
         return;
     }
     
-    // 优先使用URL（节省空间）
-    if (imageUrl) {
-        console.log('使用图片URL');
-        addQuoteWithImage(japanese, chinese, drama, year, imageUrl);
-    }
-    // 如果有图片文件，压缩并保存
-    else if (imageFile) {
-        console.log('读取并压缩图片文件...');
-        // 更激进的压缩：600px宽度，50%质量
-        compressImage(imageFile, 600, 0.5)
-            .then(compressedData => {
+    // 处理图片和音乐
+    const processData = async () => {
+        console.log('开始处理数据...');
+        let finalImageData = imageUrl;
+        let finalMusicData = musicUrl || '';
+        
+        // 处理图片
+        if (!imageUrl && imageFile) {
+            console.log('读取并压缩图片文件...');
+            try {
+                finalImageData = await compressImage(imageFile, 600, 0.5);
                 console.log('图片压缩成功');
-                addQuoteWithImage(japanese, chinese, drama, year, compressedData);
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('图片处理失败:', error);
                 alert('图片处理失败，请重试或使用图片URL');
-            });
-    } else {
-        console.log('使用默认图片');
-        // 没有图片，使用默认占位图
-        const defaultImage = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27324%27 height=%27496%27%3E%3Crect fill=%27%23e8e8e8%27 width=%27324%27 height=%27496%27/%3E%3Ctext x=%27162%27 y=%27230%27 font-size=%2720%27 text-anchor=%27middle%27 fill=%27%23999%27%3E暂无图片%3C/text%3E%3Ctext x=%27162%27 y=%27260%27 font-size=%2716%27 text-anchor=%27middle%27 fill=%27%23bbb%27%3E可通过编辑添加%3C/text%3E%3C/svg%3E';
-        addQuoteWithImage(japanese, chinese, drama, year, defaultImage);
-    }
-}
-
-// 添加台词（带图片数据）
-function addQuoteWithImage(japanese, chinese, drama, year, imageData) {
-    console.log('开始添加台词...');
-    const newQuote = {
-        id: quotes.length > 0 ? Math.max(...quotes.map(q => q.id)) + 1 : 1,
-        japanese,
-        chinese,
-        drama,
-        year,
-        image: imageData
+                return;
+            }
+        } else if (!imageUrl) {
+            console.log('使用默认图片');
+            finalImageData = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27324%27 height=%27496%27%3E%3Crect fill=%27%23e8e8e8%27 width=%27324%27 height=%27496%27/%3E%3Ctext x=%27162%27 y=%27230%27 font-size=%2720%27 text-anchor=%27middle%27 fill=%27%23999%27%3E暂无图片%3C/text%3E%3Ctext x=%27162%27 y=%27260%27 font-size=%2716%27 text-anchor=%27middle%27 fill=%27%23bbb%27%3E可通过编辑添加%3C/text%3E%3C/svg%3E';
+        } else {
+            console.log('使用图片URL:', imageUrl);
+        }
+        
+        // 处理音乐文件 - 禁用上传，只使用URL
+        if (musicFile) {
+            console.warn('音乐文件过大，不建议上传。请将音乐文件放到music/文件夹，然后填写路径如: music/long-vacation.mp3');
+            alert('音乐文件不支持上传（会超出存储限制）。\n请将音乐文件放到music/文件夹中，\n然后在"背景音乐"字段填写路径，如：music/long-vacation.mp3');
+            finalMusicData = '';
+        } else if (musicUrl) {
+            console.log('使用音乐URL:', musicUrl);
+        }
+        
+        console.log('准备添加台词...');
+        addQuoteWithData(japanese, chinese, drama, year, finalImageData, finalMusicData);
     };
     
-    console.log('新台词对象:', newQuote);
-    quotes.push(newQuote);
-    console.log('当前台词总数:', quotes.length);
+    console.log('调用processData...');
+    processData().catch(error => {
+        console.error('processData执行失败:', error);
+        alert('处理数据时出错: ' + error.message);
+    });
+}
+
+// 添加台词（带图片和音乐数据）
+function addQuoteWithData(japanese, chinese, drama, year, imageData, musicData) {
+    console.log('开始添加台词...');
     
-    saveQuotes();
-    renderQuotesList();
-    clearForm();
-    
-    alert('台词添加成功！' + (imageData.includes('暂无图片') ? '\n提示：您可以稍后编辑此台词来添加图片' : ''));
+    try {
+        const newQuote = {
+            id: quotes.length > 0 ? Math.max(...quotes.map(q => q.id)) + 1 : 1,
+            japanese,
+            chinese,
+            drama,
+            year,
+            image: imageData
+        };
+        
+        // 只有当有音乐数据时才添加music字段
+        if (musicData) {
+            newQuote.music = musicData;
+        }
+        
+        console.log('新台词对象:', newQuote);
+        quotes.push(newQuote);
+        console.log('当前台词总数:', quotes.length);
+        
+        saveQuotes();
+        renderQuotesList();
+        clearForm();
+        
+        alert('台词添加成功！');
+    } catch (error) {
+        console.error('添加台词失败:', error);
+        // 回滚：移除刚添加的数据
+        quotes.pop();
+        alert('添加失败: ' + error.message);
+    }
 }
 
 // 清空表单
 function clearForm() {
     document.getElementById('quote-form').reset();
-    document.getElementById('image-preview').innerHTML = '';
-    document.getElementById('image-preview').classList.remove('show');
+    const imagePreview = document.getElementById('image-preview');
+    if (imagePreview) {
+        imagePreview.innerHTML = '';
+        imagePreview.classList.remove('show');
+    }
+    const musicPreview = document.getElementById('music-preview');
+    if (musicPreview) {
+        musicPreview.innerHTML = '';
+    }
 }
 
 // 压缩图片
@@ -183,6 +265,16 @@ function compressImage(file, maxWidth = 800, quality = 0.7) {
     });
 }
 
+// 读取文件为DataURL（用于音乐等文件）
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
 // 处理图片上传预览
 function handleImageUpload(e) {
     const file = e.target.files[0];
@@ -190,6 +282,8 @@ function handleImageUpload(e) {
         const reader = new FileReader();
         reader.onload = function(event) {
             const preview = document.getElementById('image-preview');
+            if (!preview) return; // 如果元素不存在，直接返回
+            
             preview.innerHTML = `<img src="${event.target.result}" alt="预览">`;
             preview.classList.add('show');
         };
@@ -197,10 +291,34 @@ function handleImageUpload(e) {
     }
 }
 
+// 处理音乐上传预览
+function handleMusicUpload(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const preview = document.getElementById('music-preview');
+        if (!preview) return; // 如果元素不存在，直接返回
+        
+        const fileName = file.name;
+        const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+        preview.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: #f0f0f0; border-radius: 4px; margin-top: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+                <span style="flex: 1; font-size: 14px;">${fileName} (${fileSize}MB)</span>
+            </div>
+        `;
+    }
+}
+
 // 渲染台词列表
 function renderQuotesList() {
     const container = document.getElementById('quotes-container');
     const countElement = document.getElementById('quote-count');
+    
+    if (!container || !countElement) return; // 如果元素不存在，直接返回
     
     countElement.textContent = quotes.length;
     
@@ -216,8 +334,15 @@ function renderQuotesList() {
         return;
     }
     
-    container.innerHTML = quotes.map(quote => `
-        <div class="quote-card" data-id="${quote.id}">
+    const todayDefaultId = getTodayDefaultId();
+    
+    container.innerHTML = quotes.map(quote => {
+        const isDefault = quote.id === todayDefaultId;
+        return `
+        <div class="quote-card ${isDefault ? 'is-default' : ''}" data-id="${quote.id}">
+            <button class="star-btn ${isDefault ? 'active' : ''}" onclick="setTodayDefault(${quote.id})" title="${isDefault ? '当前默认' : '设为今日默认'}">
+                ${isDefault ? '⭐' : '☆'}
+            </button>
             <img src="${quote.image}" alt="${quote.drama}" class="quote-card-image" onerror="if(this.src!=='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27324%27 height=%27180%27%3E%3Crect fill=%27%23e8e8e8%27 width=%27324%27 height=%27180%27/%3E%3Ctext x=%27162%27 y=%2795%27 font-size=%2718%27 text-anchor=%27middle%27 fill=%27%23999%27%3E暂无图片%3C/text%3E%3C/svg%3E')this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27324%27 height=%27180%27%3E%3Crect fill=%27%23e8e8e8%27 width=%27324%27 height=%27180%27/%3E%3Ctext x=%27162%27 y=%2795%27 font-size=%2718%27 text-anchor=%27middle%27 fill=%27%23999%27%3E暂无图片%3C/text%3E%3C/svg%3E'">
             <div class="quote-card-japanese">${quote.japanese}</div>
             <div class="quote-card-chinese">${quote.chinese}</div>
@@ -227,12 +352,36 @@ function renderQuotesList() {
                 <button class="btn btn-danger btn-small" onclick="deleteQuote(${quote.id})">🗑️ 删除</button>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
+}
+
+// 设置今日默认台词
+function setTodayDefault(id) {
+    try {
+        localStorage.setItem('todayDefaultQuote', id.toString());
+        alert('已设置为今日默认台词！');
+        renderQuotesList();
+    } catch (error) {
+        console.error('设置默认台词失败:', error);
+        alert('设置失败: ' + error.message);
+    }
+}
+
+// 获取今日默认台词ID
+function getTodayDefaultId() {
+    const id = localStorage.getItem('todayDefaultQuote');
+    return id ? parseInt(id) : null;
 }
 
 // 删除单条台词
 function deleteQuote(id) {
     if (!confirm('确定要删除这条台词吗？')) return;
+    
+    // 如果删除的是默认台词，清除默认设置
+    if (id === getTodayDefaultId()) {
+        localStorage.removeItem('todayDefaultQuote');
+    }
     
     quotes = quotes.filter(q => q.id !== id);
     saveQuotes();
@@ -248,14 +397,22 @@ function editQuote(id) {
     document.getElementById('chinese').value = quote.chinese;
     document.getElementById('drama').value = quote.drama;
     document.getElementById('year').value = quote.year;
+    document.getElementById('image-url').value = quote.image.startsWith('data:') ? '' : quote.image;
+    
+    // 如果有音乐字段，填充音乐路径
+    if (quote.music) {
+        document.getElementById('music').value = quote.music.startsWith('data:') ? '' : quote.music;
+    }
     
     // 显示图片预览
     const preview = document.getElementById('image-preview');
     preview.innerHTML = `<img src="${quote.image}" alt="预览">`;
     preview.classList.add('show');
     
-    // 删除原有的，稍后会添加新的
-    deleteQuote(id);
+    // 静默删除原有的（不弹出确认框）
+    quotes = quotes.filter(q => q.id !== id);
+    saveQuotes();
+    renderQuotesList();
     
     // 滚动到表单
     document.querySelector('.add-form').scrollIntoView({ behavior: 'smooth' });

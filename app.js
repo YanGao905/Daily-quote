@@ -1,14 +1,19 @@
 // 当前显示的索引（相对于今天的偏移）
-let currentDayOffset = 0;
+let currentDayOffset = 0; // 默认显示今天
 let isAnimating = false;
 
 // 从 localStorage 加载数据（优先）或使用 quotes.js 中的数据
 function loadQuotes() {
     const savedQuotes = localStorage.getItem('dailyQuotes');
     if (savedQuotes) {
-        return JSON.parse(savedQuotes);
+        const data = JSON.parse(savedQuotes);
+        const longVacation = data.filter(q => q.drama === '悠长假期');
+        console.log('localStorage中悠长假期的数量:', longVacation.length);
+        console.log('悠长假期数据:', longVacation);
+        return data;
     }
     // 如果 localStorage 中没有数据，使用 quotes.js 中定义的数据
+    console.log('使用quotes.js中的数据');
     return typeof quotes !== 'undefined' ? quotes : [];
 }
 
@@ -19,16 +24,7 @@ function getAllQuotes() {
 
 // 获取当天的quote
 function getTodayQuote() {
-    const allQuotes = getAllQuotes();
-    if (allQuotes.length === 0) return null;
-    
-    const today = new Date();
-    const dayOfYear = getDayOfYear(today);
-    
-    // 使用年份天数对quotes数组长度取模，确保每天都有唯一的quote
-    const quoteIndex = dayOfYear % allQuotes.length;
-    
-    return allQuotes[quoteIndex];
+    return getQuoteByOffset(0);
 }
 
 // 根据偏移获取quote
@@ -36,12 +32,28 @@ function getQuoteByOffset(offset) {
     const allQuotes = getAllQuotes();
     if (allQuotes.length === 0) return null;
     
+    // 如果是今天，优先使用用户设置的默认台词
+    if (offset === 0) {
+        const defaultId = localStorage.getItem('todayDefaultQuote');
+        if (defaultId) {
+            const defaultQuote = allQuotes.find(q => q.id === parseInt(defaultId));
+            if (defaultQuote) {
+                console.log('✓ 使用设置的默认台词:', defaultQuote.drama);
+                return defaultQuote;
+            }
+        }
+    }
+    
     const today = new Date();
     const targetDate = new Date(today);
     targetDate.setDate(today.getDate() + offset);
     
-    const dayOfYear = getDayOfYear(targetDate);
-    const quoteIndex = dayOfYear % allQuotes.length;
+    // 使用绝对天数：从一个固定的基准日期（2000年1月1日）开始计算
+    const baseDate = new Date(2000, 0, 1);
+    const daysSinceBase = Math.floor((targetDate - baseDate) / (1000 * 60 * 60 * 24));
+    
+    // 确保索引为正数
+    const quoteIndex = ((daysSinceBase % allQuotes.length) + allQuotes.length) % allQuotes.length;
     
     return allQuotes[quoteIndex];
 }
@@ -82,6 +94,9 @@ function updatePage() {
     const targetDate = getDateByOffset(currentDayOffset);
     const quote = getQuoteByOffset(currentDayOffset);
     
+    // 显示正常内容
+    showNormalPage();
+    
     // 如果没有台词数据，显示提示
     if (!quote) {
         document.getElementById('japanese-quote').textContent = '还没有添加台词';
@@ -112,10 +127,218 @@ function updatePage() {
     
     // 更新剧名和年份
     document.getElementById('drama-info').textContent = `${quote.drama} (${quote.year})`;
+    
+    // 更新背景音乐
+    updateBackgroundMusic(quote);
+}
+
+// 更新背景音乐
+function updateBackgroundMusic(quote) {
+    const bgMusic = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicBtn');
+    
+    console.log('========== 音乐调试 ==========');
+    console.log('完整quote对象:', quote);
+    console.log('music字段值:', quote ? quote.music : 'quote不存在');
+    
+    // 始终显示音乐按钮
+    musicBtn.classList.add('visible');
+    
+    // 如果有音乐文件，加载并自动播放
+    if (quote && quote.music) {
+        console.log('✓ 有音乐字段，开始加载:', quote.music);
+        
+        // 先设置为加载中状态（半透明，慢速旋转）
+        musicBtn.classList.add('loading');
+        musicBtn.classList.remove('muted');
+        
+        bgMusic.src = quote.music;
+        bgMusic.muted = false;
+        bgMusic.volume = 1.0;
+        
+        // 使用canplay事件，更快开始播放（不需要等全部下载完）
+        const canPlayHandler = () => {
+            console.log('✓ 音频可以播放了，开始播放');
+            musicBtn.classList.remove('loading');
+            
+            const playPromise = bgMusic.play();
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        console.log('✓ 播放成功！');
+                    })
+                    .catch((error) => {
+                        console.error('✗ 播放失败:', error.name, error.message);
+                        musicBtn.classList.add('muted');
+                    });
+            }
+        };
+        
+        const errorHandler = (e) => {
+            console.error('✗ 音频加载错误:', bgMusic.error);
+            musicBtn.classList.remove('loading');
+            musicBtn.classList.add('muted');
+        };
+        
+        // 移除旧的监听器（如果有）
+        bgMusic.removeEventListener('canplay', canPlayHandler);
+        bgMusic.removeEventListener('error', errorHandler);
+        
+        // 添加新监听器
+        bgMusic.addEventListener('canplay', canPlayHandler, { once: true });
+        bgMusic.addEventListener('error', errorHandler, { once: true });
+        
+        bgMusic.load();
+    } else {
+        console.log('✗ 没有音乐文件');
+        bgMusic.pause();
+        bgMusic.src = '';
+        musicBtn.classList.remove('loading');
+        musicBtn.classList.add('muted');
+    }
+    console.log('==============================');
+}
+
+// 显示「终了」页面
+function showEndPage() {
+    const container = document.querySelector('.container');
+    const dateSection = document.querySelector('.date-section');
+    const quoteSection = document.querySelector('.quote-section');
+    const imageSection = document.querySelector('.image-section');
+    const dramaInfo = document.querySelector('.drama-info');
+    
+    // 先淡出当前内容
+    dateSection.style.transition = 'opacity 0.3s ease';
+    quoteSection.style.transition = 'opacity 0.3s ease';
+    imageSection.style.transition = 'opacity 0.3s ease';
+    dramaInfo.style.transition = 'opacity 0.3s ease';
+    
+    dateSection.style.opacity = '0';
+    quoteSection.style.opacity = '0';
+    imageSection.style.opacity = '0';
+    dramaInfo.style.opacity = '0';
+    
+    setTimeout(() => {
+        // 隐藏正常内容
+        dateSection.style.display = 'none';
+        quoteSection.style.display = 'none';
+        imageSection.style.display = 'none';
+        dramaInfo.style.display = 'none';
+        
+        // 显示终了页面
+        container.classList.add('end-page');
+        
+        // 获取终了页面元素
+        const endToday = document.querySelector('.end-today');
+        const endQuoteSection = document.querySelector('.end-quote-section');
+        const endText = document.querySelector('.end-text');
+        
+        // 每次都重置：先移除transition，立即设置透明度为0
+        endToday.style.transition = 'none';
+        endQuoteSection.style.transition = 'none';
+        endText.style.transition = 'none';
+        
+        endToday.style.opacity = '0';
+        endQuoteSection.style.opacity = '0';
+        endText.style.opacity = '0';
+        
+        // 强制重绘
+        void endToday.offsetHeight;
+        
+        // 第一步：淡入中间的quote部分
+        setTimeout(() => {
+            endQuoteSection.style.transition = 'opacity 0.4s ease';
+            endQuoteSection.style.opacity = '1';
+            
+            // 第二步：淡入左上角的"今日"
+            setTimeout(() => {
+                endToday.style.transition = 'opacity 0.4s ease';
+                endToday.style.opacity = '1';
+                
+                // 第三步：淡入右下角的"終了"
+                setTimeout(() => {
+                    endText.style.transition = 'opacity 0.4s ease';
+                    endText.style.opacity = '1';
+                }, 200);
+            }, 200);
+        }, 100);
+    }, 300);
+}
+
+// 显示正常页面
+function showNormalPage() {
+    const container = document.querySelector('.container');
+    const dateSection = document.querySelector('.date-section');
+    const quoteSection = document.querySelector('.quote-section');
+    const imageSection = document.querySelector('.image-section');
+    const dramaInfo = document.querySelector('.drama-info');
+    
+    // 如果当前是终了页面，先淡出
+    if (container.classList.contains('end-page')) {
+        const endToday = document.querySelector('.end-today');
+        const endQuoteSection = document.querySelector('.end-quote-section');
+        const endText = document.querySelector('.end-text');
+        
+        endToday.style.transition = 'opacity 0.3s ease';
+        endQuoteSection.style.transition = 'opacity 0.3s ease';
+        endText.style.transition = 'opacity 0.3s ease';
+        
+        endToday.style.opacity = '0';
+        endQuoteSection.style.opacity = '0';
+        endText.style.opacity = '0';
+        
+        setTimeout(() => {
+            container.classList.remove('end-page');
+            
+            // 显示正常内容
+            dateSection.style.display = 'flex';
+            quoteSection.style.display = 'flex';
+            imageSection.style.display = 'flex';
+            dramaInfo.style.display = 'block';
+            
+            // 淡入
+            dateSection.style.opacity = '0';
+            quoteSection.style.opacity = '0';
+            imageSection.style.opacity = '0';
+            dramaInfo.style.opacity = '0';
+            
+            setTimeout(() => {
+                dateSection.style.transition = 'opacity 0.3s ease';
+                quoteSection.style.transition = 'opacity 0.3s ease';
+                imageSection.style.transition = 'opacity 0.3s ease';
+                dramaInfo.style.transition = 'opacity 0.3s ease';
+                
+                dateSection.style.opacity = '1';
+                quoteSection.style.opacity = '1';
+                imageSection.style.opacity = '1';
+                dramaInfo.style.opacity = '1';
+            }, 50);
+        }, 300);
+    } else {
+        // 如果不是终了页面，直接显示并确保透明度正确
+        container.classList.remove('end-page');
+        dateSection.style.display = 'flex';
+        quoteSection.style.display = 'flex';
+        imageSection.style.display = 'flex';
+        dramaInfo.style.display = 'block';
+        
+        // 移除transition后立即设置透明度，避免动画
+        dateSection.style.transition = 'none';
+        quoteSection.style.transition = 'none';
+        imageSection.style.transition = 'none';
+        dramaInfo.style.transition = 'none';
+        
+        dateSection.style.opacity = '1';
+        quoteSection.style.opacity = '1';
+        imageSection.style.opacity = '1';
+        dramaInfo.style.opacity = '1';
+    }
 }
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
+    // 确保从今天开始
+    currentDayOffset = 0;
     updatePage();
     
     // 每天午夜自动更新（可选）
@@ -149,6 +372,15 @@ document.addEventListener('DOMContentLoaded', function() {
 // 切换到下一天（向上滑动）
 function goToPreviousDay() {
     if (isAnimating) return;
+    
+    // 如果在终了页面，翻回今天
+    if (document.querySelector('.container').classList.contains('end-page')) {
+        showNormalPage();
+        currentDayOffset = 0;
+        updatePage();
+        return;
+    }
+    
     isAnimating = true;
     
     const quoteSection = document.querySelector('.quote-section');
@@ -220,6 +452,19 @@ function goToPreviousDay() {
 // 切换到前一天（向下滑动）
 function goToNextDay() {
     if (isAnimating) return;
+    
+    // 如果已经在终了页面，不允许继续
+    if (document.querySelector('.container').classList.contains('end-page')) {
+        return;
+    }
+    
+    // 如果当前是今天(offset=0)，显示终了页面
+    if (currentDayOffset === 0) {
+        showEndPage();
+        return;
+    }
+    
+    // 如果在历史日期，往前翻一天
     isAnimating = true;
     
     const quoteSection = document.querySelector('.quote-section');
@@ -353,3 +598,21 @@ document.addEventListener('keydown', function(event) {
         goToNextDay();
     }
 });
+
+// 音乐静音控制
+document.addEventListener('DOMContentLoaded', function() {
+    const bgMusic = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicBtn');
+    
+    // 点击按钮切换静音/取消静音
+    musicBtn.addEventListener('click', function() {
+        if (bgMusic.muted) {
+            bgMusic.muted = false;
+            musicBtn.classList.remove('muted');
+        } else {
+            bgMusic.muted = true;
+            musicBtn.classList.add('muted');
+        }
+    });
+});
+

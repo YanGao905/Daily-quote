@@ -51,6 +51,65 @@ body {
     box-shadow: 0 4px 20px rgba(0,0,0,0.25);
 }
 
+/* Music Button */
+.music-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    animation: rotate 3s linear infinite;
+    z-index: 10;
+}
+
+.music-btn.visible {
+    opacity: 0.4;
+    pointer-events: auto;
+}
+
+.music-btn:hover {
+    opacity: 0.8;
+}
+
+/* 加载中状态：慢速旋转 */
+.music-btn.loading {
+    animation: rotate 6s linear infinite;
+    opacity: 0.3;
+}
+
+.music-btn.muted {
+    opacity: 0.2;
+    animation: none;
+}
+
+.music-btn.muted:hover {
+    opacity: 0.4;
+}
+
+.music-btn svg {
+    width: 11px;
+    height: 14px;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .container {
     width: 390px;
     height: 600px;
@@ -63,6 +122,75 @@ body {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
     overflow: hidden;
     margin: 0 auto;
+}
+
+/* 终了页面样式 */
+.end-content {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.container.end-page .end-content {
+    display: block;
+}
+
+.end-today {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 179px;
+    font-family: 'Hiragino Mincho Pro', 'Yu Mincho', serif;
+    font-size: 80px;
+    line-height: normal;
+    color: #212121;
+    font-weight: 300;
+    text-align: center;
+}
+
+.end-quote-section {
+    position: absolute;
+    left: 50%;
+    top: 242px;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 116px;
+}
+
+.end-japanese {
+    font-family: 'Hiragino Mincho Pro', 'Yu Mincho', serif;
+    font-size: 24px;
+    line-height: normal;
+    color: #212121;
+    text-align: center;
+    font-weight: 300;
+    width: 331px;
+    margin: 0 auto;
+}
+
+.end-chinese {
+    font-family: 'SF Compact', 'Noto Sans SC', 'Noto Sans JP', sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    color: #616161;
+    text-align: center;
+    margin-top: 12px;
+    font-weight: 300;
+    font-variation-settings: 'wght' 300, 'GRAD' 400;
+}
+
+.end-text {
+    position: absolute;
+    right: 0;
+    top: 480px;
+    width: 179px;
+    font-family: 'Hiragino Mincho Pro', 'Yu Mincho', serif;
+    font-size: 80px;
+    line-height: normal;
+    color: #212121;
+    text-align: center;
+    font-weight: 300;
 }
 
 /* Date Section */
@@ -120,7 +248,7 @@ body {
     font-family: 'SF Compact', 'Noto Sans SC', 'Noto Sans JP', sans-serif;
     font-size: 14px;
     color: #616161;
-    font-weight: 350;
+    font-weight: 300;
     line-height: normal;
 }
 
@@ -141,8 +269,8 @@ body {
 .image-section img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    mix-blend-mode: multiply;
+    object-fit: contain;
+    object-position: center;
 }
 
 /* Drama Info Section */
