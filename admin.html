@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理台词 - Daily Quote Admin</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>📝 台词管理</h1>
+            <div class="header-actions">
+                <button id="export-btn" class="btn btn-secondary">📥 导出数据</button>
+                <button id="import-btn" class="btn btn-secondary">📤 导入数据</button>
+                <a href="index.html" class="btn btn-primary">👁️ 查看应用</a>
+            </div>
+        </header>
+
+        <div class="admin-content">
+            <!-- 添加新台词表单 -->
+            <div class="add-form card">
+                <h2>添加新台词</h2>
+                <form id="quote-form">
+                    <div class="form-group">
+                        <label for="japanese">日文台词 *</label>
+                        <textarea id="japanese" required placeholder="例：人生にはね、長い休みが必要な時もあるのよ"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="chinese">中文翻译 *</label>
+                        <textarea id="chinese" required placeholder="例：人生啊，也会有需要放长假的时候"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="drama">剧名 *</label>
+                            <input type="text" id="drama" required placeholder="例：悠长假期">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="year">年份 *</label>
+                            <input type="number" id="year" required placeholder="例：1996" min="1980" max="2030">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image-url">图片URL <small style="color: #999;">(推荐使用URL，节省存储空间)</small></label>
+                        <input type="url" id="image-url" placeholder="例：https://example.com/image.jpg">
+                        <small style="color: #666; display: block; margin-top: 4px;">或者下方上传图片文件</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image-upload">上传图片文件 <small style="color: #999;">(可选，但会占用较多存储空间)</small></label>
+                        <div class="file-upload-area">
+                            <input type="file" id="image-upload" accept="image/*">
+                            <div class="file-upload-text">
+                                <span>点击选择图片或拖拽到这里</span>
+                                <small>支持 PNG, JPG, SVG 格式 · 建议图片小于500KB</small>
+                            </div>
+                        </div>
+                        <div id="image-preview" class="image-preview"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large">➕ 添加台词</button>
+                        <button type="button" id="clear-btn" class="btn btn-secondary">🗑️ 清空表单</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 现有台词列表 -->
+            <div class="quotes-list card">
+                <div class="list-header">
+                    <h2>现有台词 (<span id="quote-count">0</span>条)</h2>
+                    <button id="delete-all-btn" class="btn btn-danger">🗑️ 删除全部</button>
+                </div>
+                <div id="quotes-container" class="quotes-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="import-input" accept=".json" style="display: none;">
+
+    <script src="admin.js"></script>
+</body>
+</html>

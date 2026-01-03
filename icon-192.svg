@@ -1,0 +1,6 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="48" fill="#f6f8ea"/>
+  <text x="96" y="75" font-family="'Hiragino Mincho Pro', serif" font-size="32" text-anchor="middle" fill="#212121">日</text>
+  <text x="96" y="120" font-family="'Hiragino Mincho Pro', serif" font-size="24" text-anchor="middle" fill="#616161">每日一句</text>
+  <circle cx="160" cy="40" r="12" fill="#ff6b6b"/>
+</svg>

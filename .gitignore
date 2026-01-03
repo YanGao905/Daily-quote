@@ -1,0 +1,5 @@
+# Daily Quote
+
+node_modules/
+.DS_Store
+*.log

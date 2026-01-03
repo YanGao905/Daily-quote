@@ -1,0 +1,253 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Compact', 'Hiragino Mincho Pro', 'Noto Sans JP', 'Noto Sans SC', sans-serif;
+    background-color: #1a1a1a;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    touch-action: pan-y;
+    user-select: none;
+}
+
+.app-wrapper {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Admin Button */
+.admin-btn {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    width: 48px;
+    height: 48px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #616161;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+.admin-btn:hover {
+    background: #212121;
+    color: white;
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+
+.container {
+    width: 390px;
+    height: 600px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f6f8ea;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+/* Date Section */
+.date-section {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 300;
+    color: #212121;
+}
+
+.date, .weekday {
+    font-family: 'SF Compact', -apple-system, sans-serif;
+    font-weight: 350;
+    white-space: nowrap;
+}
+
+.divider {
+    color: #212121;
+    font-size: 14px;
+    font-weight: 300;
+}
+
+/* Quote Section */
+.quote-section {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 116px;
+    width: 400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    text-align: center;
+}
+
+.japanese-quote {
+    font-family: 'Hiragino Mincho Pro', 'Yu Mincho', serif;
+    font-size: 24px;
+    line-height: 1.5;
+    color: #212121;
+    font-weight: 300;
+    max-width: 331px;
+}
+
+.chinese-quote {
+    font-family: 'SF Compact', 'Noto Sans SC', 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    color: #616161;
+    font-weight: 350;
+    line-height: normal;
+}
+
+/* Image Section */
+.image-section {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 255px;
+    width: 300px;
+    height: 300px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-section img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: multiply;
+}
+
+/* Drama Info Section */
+.drama-info {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 560px;
+    font-family: 'SF Compact', 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    font-weight: 350;
+    color: #212121;
+    text-align: center;
+}
+
+/* Navigation Arrows */
+.nav-arrow {
+    position: fixed;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #616161;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.3s ease, transform 0.2s ease;
+    z-index: 100;
+}
+
+.nav-arrow:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.nav-arrow:active {
+    transform: scale(0.95);
+}
+
+.nav-arrow-up {
+    top: 50%;
+    right: 40px;
+    transform: translateY(-60px);
+}
+
+.nav-arrow-down {
+    top: 50%;
+    right: 40px;
+    transform: translateY(60px);
+}
+
+/* Slide animations */
+.slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-down {
+    animation: slideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: translateY(-100vh);
+        opacity: 0;
+    }
+}
+
+@keyframes slideDown {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: translateY(100vh);
+        opacity: 0;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        max-width: 600px;
+        padding: 20px;
+    }
+    
+    .quote-section {
+        width: 90%;
+    }
+    
+    .japanese-quote {
+        font-size: 28px;
+    }
+    
+    .chinese-quote {
+        font-size: 18px;
+    }
+}
