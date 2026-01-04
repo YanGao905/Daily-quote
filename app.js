@@ -622,7 +622,12 @@ function loadAdminPanel() {
     const container = document.getElementById('adminPanelContainer');
     
     fetch('admin.html')
-        .then(response => response.text())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应错误');
+            }
+            return response.text();
+        })
         .then(html => {
             // 提取 admin.html 中的内容部分
             const parser = new DOMParser();
@@ -632,18 +637,36 @@ function loadAdminPanel() {
             if (adminContent) {
                 container.innerHTML = adminContent.innerHTML;
                 
-                // 重新初始化管理面板的事件监听
-                if (typeof setupEventListeners === 'function') {
-                    setupEventListeners();
-                }
-                if (typeof renderQuotesList === 'function') {
-                    renderQuotesList();
-                }
+                // 等待DOM更新后再初始化
+                setTimeout(() => {
+                    // 重新加载数据
+                    if (typeof loadQuotes === 'function') {
+                        loadQuotes();
+                    }
+                    // 重新渲染列表
+                    if (typeof renderQuotesList === 'function') {
+                        renderQuotesList();
+                    }
+                    // 重新绑定事件
+                    if (typeof setupEventListeners === 'function') {
+                        setupEventListeners();
+                    }
+                }, 100);
+            } else {
+                throw new Error('找不到管理面板内容');
             }
         })
         .catch(error => {
             console.error('加载管理面板失败:', error);
-            container.innerHTML = '<p style="color: red;">加载失败，请刷新页面重试</p>';
+            container.innerHTML = `
+                <div style="padding: 40px; text-align: center;">
+                    <p style="color: red; font-size: 18px; margin-bottom: 20px;">❌ 加载失败</p>
+                    <p style="color: #666; margin-bottom: 20px;">错误: ${error.message}</p>
+                    <button onclick="location.href='admin.html'" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        直接打开管理页面
+                    </button>
+                </div>
+            `;
         });
 }
 
