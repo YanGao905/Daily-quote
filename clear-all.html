@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>清除缓存中...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f5f5f5;
+        }
+        .loading {
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">⏳ 正在清除缓存并刷新...</div>
+    
+    <script>
+        (async function() {
+            try {
+                // 1. 清除所有缓存
+                if ('caches' in window) {
+                    const names = await caches.keys();
+                    await Promise.all(names.map(name => caches.delete(name)));
+                    console.log('✓ 缓存已清除');
+                }
+                
+                // 2. 卸载 Service Worker
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(registrations.map(reg => reg.unregister()));
+                    console.log('✓ Service Worker 已卸载');
+                }
+                
+                // 3. 等待一秒后跳转到主页
+                setTimeout(() => {
+                    window.location.href = 'index.html?t=' + Date.now();
+                }, 1000);
+            } catch (error) {
+                console.error('清除失败:', error);
+                alert('清除失败，请手动刷新页面（Command+Shift+R）');
+            }
+        })();
+    </script>
+</body>
+</html>

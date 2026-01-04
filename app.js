@@ -6,15 +6,23 @@ let isAnimating = false;
 function loadQuotes() {
     const savedQuotes = localStorage.getItem('dailyQuotes');
     if (savedQuotes) {
-        const data = JSON.parse(savedQuotes);
-        const longVacation = data.filter(q => q.drama === '悠长假期');
-        console.log('localStorage中悠长假期的数量:', longVacation.length);
-        console.log('悠长假期数据:', longVacation);
-        return data;
+        try {
+            const data = JSON.parse(savedQuotes);
+            if (Array.isArray(data) && data.length > 0) {
+                console.log('✓ 从localStorage加载:', data.length, '条台词');
+                return data;
+            }
+        } catch (e) {
+            console.error('✗ localStorage数据解析失败:', e);
+        }
     }
     // 如果 localStorage 中没有数据，使用 quotes.js 中定义的数据
-    console.log('使用quotes.js中的数据');
-    return typeof quotes !== 'undefined' ? quotes : [];
+    console.log('使用quotes.js中的默认数据');
+    if (typeof quotes !== 'undefined' && Array.isArray(quotes)) {
+        return quotes;
+    }
+    console.warn('⚠️ 没有找到任何台词数据');
+    return [];
 }
 
 // 获取所有台词（动态获取，确保实时同步）
@@ -93,7 +101,10 @@ function getShuffledQuotes() {
 // 根据偏移获取quote
 function getQuoteByOffset(offset) {
     const allQuotes = getAllQuotes();
-    if (allQuotes.length === 0) return null;
+    if (!allQuotes || allQuotes.length === 0) {
+        console.warn('⚠️ 没有可用的台词数据');
+        return null;
+    }
     
     // 如果是今天，优先使用用户设置的默认台词
     if (offset === 0) {
