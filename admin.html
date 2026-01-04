@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="admin.css">
 </head>
 <body>
+    <!-- 隐藏的音频元素用于跨页面音乐播放 -->
+    <audio id="bgMusic" loop preload="metadata" style="display: none;"></audio>
+    
     <div class="admin-container">
         <header class="admin-header">
             <h1>📝 台词管理</h1>
@@ -91,6 +94,7 @@
 
     <input type="file" id="import-input" accept=".json" style="display: none;">
 
+    <script src="music-player.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

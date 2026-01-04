@@ -27,6 +27,69 @@ function getTodayQuote() {
     return getQuoteByOffset(0);
 }
 
+// 打乱台词顺序，确保连续的台词不来自同一部剧
+function shuffleQuotesAvoidingSameDrama(quotes) {
+    if (quotes.length <= 1) return quotes;
+    
+    const shuffled = [...quotes];
+    const maxAttempts = 100;
+    
+    // Fisher-Yates 洗牌算法
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    
+    // 调整顺序，避免连续两个来自同一部剧
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        let hasSameDrama = false;
+        
+        for (let i = 0; i < shuffled.length - 1; i++) {
+            if (shuffled[i].drama === shuffled[i + 1].drama) {
+                hasSameDrama = true;
+                // 尝试找一个不同剧的台词交换
+                for (let j = i + 2; j < shuffled.length; j++) {
+                    if (shuffled[j].drama !== shuffled[i].drama && 
+                        shuffled[j].drama !== shuffled[i - 1]?.drama) {
+                        [shuffled[i + 1], shuffled[j]] = [shuffled[j], shuffled[i + 1]];
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (!hasSameDrama) break;
+    }
+    
+    return shuffled;
+}
+
+// 获取或创建打乱后的台词列表（缓存）
+let shuffledQuotes = null;
+function getShuffledQuotes() {
+    const allQuotes = getAllQuotes();
+    
+    // 检查是否需要重新洗牌（数据变化时）
+    const quotesKey = JSON.stringify(allQuotes.map(q => q.id));
+    const savedKey = localStorage.getItem('shuffledQuotesKey');
+    
+    if (!shuffledQuotes || quotesKey !== savedKey) {
+        console.log('重新洗牌台词顺序');
+        shuffledQuotes = shuffleQuotesAvoidingSameDrama(allQuotes);
+        localStorage.setItem('shuffledQuotesKey', quotesKey);
+        localStorage.setItem('shuffledQuotesOrder', JSON.stringify(shuffledQuotes.map(q => q.id)));
+    } else {
+        // 从缓存加载顺序
+        const savedOrder = localStorage.getItem('shuffledQuotesOrder');
+        if (savedOrder) {
+            const orderIds = JSON.parse(savedOrder);
+            shuffledQuotes = orderIds.map(id => allQuotes.find(q => q.id === id)).filter(q => q);
+        }
+    }
+    
+    return shuffledQuotes;
+}
+
 // 根据偏移获取quote
 function getQuoteByOffset(offset) {
     const allQuotes = getAllQuotes();
@@ -42,20 +105,17 @@ function getQuoteByOffset(offset) {
                 return defaultQuote;
             }
         }
+        // 今天没有设置默认台词，返回第一个
+        return allQuotes[0];
     }
     
-    const today = new Date();
-    const targetDate = new Date(today);
-    targetDate.setDate(today.getDate() + offset);
+    // 其他日期使用打乱后的顺序
+    const shuffled = getShuffledQuotes();
     
-    // 使用绝对天数：从一个固定的基准日期（2000年1月1日）开始计算
-    const baseDate = new Date(2000, 0, 1);
-    const daysSinceBase = Math.floor((targetDate - baseDate) / (1000 * 60 * 60 * 24));
+    // 对于过去的日期（负偏移），从打乱列表中按顺序获取
+    const index = Math.abs(offset - 1) % shuffled.length;
     
-    // 确保索引为正数
-    const quoteIndex = ((daysSinceBase % allQuotes.length) + allQuotes.length) % allQuotes.length;
-    
-    return allQuotes[quoteIndex];
+    return shuffled[index];
 }
 
 // 计算一年中的第几天
@@ -90,7 +150,7 @@ function formatWeekday(date) {
 }
 
 // 更新页面内容
-function updatePage() {
+function updatePage(direction = 'up') {
     const targetDate = getDateByOffset(currentDayOffset);
     const quote = getQuoteByOffset(currentDayOffset);
     
@@ -109,14 +169,41 @@ function updatePage() {
     document.getElementById('date').textContent = formatDate(targetDate);
     document.getElementById('weekday').textContent = formatWeekday(targetDate);
     
-    // 更新quote
-    document.getElementById('japanese-quote').textContent = quote.japanese;
-    document.getElementById('chinese-quote').textContent = quote.chinese;
-    
-    // 更新图片
+    // 获取元素并移除旧动画类
+    const japaneseQuote = document.getElementById('japanese-quote');
+    const chineseQuote = document.getElementById('chinese-quote');
     const imageElement = document.getElementById('quote-image');
+    const dramaInfo = document.getElementById('drama-info');
+    
+    // 移除旧的动画类
+    japaneseQuote.classList.remove('fade-in', 'fade-in-down', 'fade-in-1', 'fade-in-reverse-1');
+    chineseQuote.classList.remove('fade-in', 'fade-in-down', 'fade-in-2', 'fade-in-reverse-2');
+    imageElement.parentElement.classList.remove('fade-in', 'fade-in-down', 'fade-in-3', 'fade-in-reverse-3');
+    
+    // 更新内容
+    japaneseQuote.textContent = quote.japanese;
+    chineseQuote.textContent = quote.chinese;
     imageElement.src = quote.image;
     imageElement.alt = `${quote.drama} (${quote.year})`;
+    dramaInfo.textContent = `${quote.drama} (${quote.year})`;
+    
+    // 根据翻页方向选择动画类和延迟顺序
+    const animationClass = direction === 'down' ? 'fade-in-down' : 'fade-in';
+    
+    // 强制重绘后添加新动画
+    void japaneseQuote.offsetWidth;
+    
+    if (direction === 'down') {
+        // 往回翻：图片→中文→日文（反向顺序）
+        japaneseQuote.classList.add(animationClass, 'fade-in-reverse-1');
+        chineseQuote.classList.add(animationClass, 'fade-in-reverse-2');
+        imageElement.parentElement.classList.add(animationClass, 'fade-in-reverse-3');
+    } else {
+        // 往前翻：日文→中文→图片（正常顺序）
+        japaneseQuote.classList.add(animationClass, 'fade-in-1');
+        chineseQuote.classList.add(animationClass, 'fade-in-2');
+        imageElement.parentElement.classList.add(animationClass, 'fade-in-3');
+    }
     
     // 图片加载失败时显示占位符（防止无限循环）
     imageElement.onerror = function() {
@@ -124,9 +211,6 @@ function updatePage() {
             this.src = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27324%27 height=%27496%27%3E%3Crect fill=%27%23e8e8e8%27 width=%27324%27 height=%27496%27/%3E%3Ctext x=%27162%27 y=%27248%27 font-size=%2724%27 text-anchor=%27middle%27 fill=%27%23999%27%3E暂无图片%3C/text%3E%3C/svg%3E';
         }
     };
-    
-    // 更新剧名和年份
-    document.getElementById('drama-info').textContent = `${quote.drama} (${quote.year})`;
     
     // 更新背景音乐
     updateBackgroundMusic(quote);
@@ -144,9 +228,15 @@ function updateBackgroundMusic(quote) {
     // 始终显示音乐按钮
     musicBtn.classList.add('visible');
     
-    // 如果有音乐文件，加载并自动播放
+    // 如果当前已经在播放音乐，不做任何改变
+    if (bgMusic.src && !bgMusic.paused) {
+        console.log('✓ 音乐正在播放，保持不变');
+        return;
+    }
+    
+    // 只有在没有音乐播放时，才加载新音乐
     if (quote && quote.music) {
-        console.log('✓ 有音乐字段，开始加载:', quote.music);
+        console.log('✓ 没有音乐在播放，加载新音乐:', quote.music);
         
         // 先设置为加载中状态（半透明，慢速旋转）
         musicBtn.classList.add('loading');
@@ -166,6 +256,10 @@ function updateBackgroundMusic(quote) {
                 playPromise
                     .then(() => {
                         console.log('✓ 播放成功！');
+                        // 播放成功后保存状态
+                        if (window.globalMusicPlayer) {
+                            window.globalMusicPlayer.saveState();
+                        }
                     })
                     .catch((error) => {
                         console.error('✗ 播放失败:', error.name, error.message);
@@ -190,11 +284,8 @@ function updateBackgroundMusic(quote) {
         
         bgMusic.load();
     } else {
-        console.log('✗ 没有音乐文件');
-        bgMusic.pause();
-        bgMusic.src = '';
-        musicBtn.classList.remove('loading');
-        musicBtn.classList.add('muted');
+        console.log('✓ 没有音乐文件');
+        // 不主动停止音乐，让用户通过静音按钮控制
     }
     console.log('==============================');
 }
@@ -273,12 +364,13 @@ function showNormalPage() {
     const imageSection = document.querySelector('.image-section');
     const dramaInfo = document.querySelector('.drama-info');
     
-    // 如果当前是终了页面，先淡出
+    // 如果当前是终了页面，需要先切换回正常布局
     if (container.classList.contains('end-page')) {
         const endToday = document.querySelector('.end-today');
         const endQuoteSection = document.querySelector('.end-quote-section');
         const endText = document.querySelector('.end-text');
         
+        // 淡出终了页面内容
         endToday.style.transition = 'opacity 0.3s ease';
         endQuoteSection.style.transition = 'opacity 0.3s ease';
         endText.style.transition = 'opacity 0.3s ease';
@@ -290,53 +382,38 @@ function showNormalPage() {
         setTimeout(() => {
             container.classList.remove('end-page');
             
-            // 显示正常内容
+            // 显示正常内容元素
             dateSection.style.display = 'flex';
             quoteSection.style.display = 'flex';
             imageSection.style.display = 'flex';
             dramaInfo.style.display = 'block';
             
-            // 淡入
-            dateSection.style.opacity = '0';
-            quoteSection.style.opacity = '0';
-            imageSection.style.opacity = '0';
-            dramaInfo.style.opacity = '0';
+            // 重置透明度
+            dateSection.style.opacity = '1';
+            quoteSection.style.opacity = '1';
+            imageSection.style.opacity = '1';
+            dramaInfo.style.opacity = '1';
             
-            setTimeout(() => {
-                dateSection.style.transition = 'opacity 0.3s ease';
-                quoteSection.style.transition = 'opacity 0.3s ease';
-                imageSection.style.transition = 'opacity 0.3s ease';
-                dramaInfo.style.transition = 'opacity 0.3s ease';
-                
-                dateSection.style.opacity = '1';
-                quoteSection.style.opacity = '1';
-                imageSection.style.opacity = '1';
-                dramaInfo.style.opacity = '1';
-            }, 50);
+            // 动画类会在updatePage中添加，这里不需要额外处理
         }, 300);
     } else {
-        // 如果不是终了页面，直接显示并确保透明度正确
-        container.classList.remove('end-page');
+        // 如果不是从终了页面切换，确保所有元素可见
         dateSection.style.display = 'flex';
         quoteSection.style.display = 'flex';
         imageSection.style.display = 'flex';
         dramaInfo.style.display = 'block';
-        
-        // 移除transition后立即设置透明度，避免动画
-        dateSection.style.transition = 'none';
-        quoteSection.style.transition = 'none';
-        imageSection.style.transition = 'none';
-        dramaInfo.style.transition = 'none';
-        
-        dateSection.style.opacity = '1';
-        quoteSection.style.opacity = '1';
-        imageSection.style.opacity = '1';
-        dramaInfo.style.opacity = '1';
     }
 }
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
+    // 初始化全局音乐播放器
+    const bgMusic = document.getElementById('bgMusic');
+    if (bgMusic && window.globalMusicPlayer) {
+        window.globalMusicPlayer.setAudio(bgMusic);
+        console.log('✓ 全局音乐播放器已初始化');
+    }
+    
     // 确保从今天开始
     currentDayOffset = 0;
     updatePage();
@@ -377,76 +454,21 @@ function goToPreviousDay() {
     if (document.querySelector('.container').classList.contains('end-page')) {
         showNormalPage();
         currentDayOffset = 0;
-        updatePage();
+        setTimeout(() => {
+            updatePage('up'); // 从终了返回，从下往上
+        }, 300);
         return;
     }
     
     isAnimating = true;
-    
-    const quoteSection = document.querySelector('.quote-section');
-    const imageSection = document.querySelector('.image-section');
-    const dramaInfo = document.querySelector('.drama-info');
-    const dateSection = document.querySelector('.date-section');
-    
-    // 日期直接切换（无动画）
     currentDayOffset--;
-    const targetDate = getDateByOffset(currentDayOffset);
-    document.getElementById('date').textContent = formatDate(targetDate);
-    document.getElementById('weekday').textContent = formatWeekday(targetDate);
     
-    // 其他内容淡出（subtle动效：20px位移，0.3s时长）
-    quoteSection.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-    imageSection.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-    dramaInfo.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-    
-    quoteSection.style.transform = 'translateY(-20px)';
-    imageSection.style.transform = 'translateY(-20px)';
-    dramaInfo.style.transform = 'translateY(-20px)';
-    
-    quoteSection.style.opacity = '0';
-    imageSection.style.opacity = '0';
-    dramaInfo.style.opacity = '0';
+    // 往回翻（更早日期），从上往下出现
+    updatePage('down');
     
     setTimeout(() => {
-        // 更新内容（不包括日期）
-        const quote = getQuoteByOffset(currentDayOffset);
-        if (quote) {
-            document.getElementById('japanese-quote').textContent = quote.japanese;
-            document.getElementById('chinese-quote').textContent = quote.chinese;
-            document.getElementById('drama-info').textContent = `${quote.drama} (${quote.year})`;
-            
-            const imageElement = document.getElementById('quote-image');
-            imageElement.src = quote.image;
-            imageElement.alt = `${quote.drama} (${quote.year})`;
-        }
-        
-        // 从下方淡入
-        quoteSection.style.transition = 'none';
-        imageSection.style.transition = 'none';
-        dramaInfo.style.transition = 'none';
-        
-        quoteSection.style.transform = 'translateY(20px)';
-        imageSection.style.transform = 'translateY(20px)';
-        dramaInfo.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            quoteSection.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-            imageSection.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-            dramaInfo.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-            
-            quoteSection.style.transform = 'translateY(0)';
-            imageSection.style.transform = 'translateY(0)';
-            dramaInfo.style.transform = 'translateY(0)';
-            
-            quoteSection.style.opacity = '1';
-            imageSection.style.opacity = '1';
-            dramaInfo.style.opacity = '1';
-            
-            setTimeout(() => {
-                isAnimating = false;
-            }, 300);
-        }, 50);
-    }, 300);
+        isAnimating = false;
+    }, 600); // 等待动画完成
 }
 
 // 切换到前一天（向下滑动）
@@ -466,70 +488,14 @@ function goToNextDay() {
     
     // 如果在历史日期，往前翻一天
     isAnimating = true;
-    
-    const quoteSection = document.querySelector('.quote-section');
-    const imageSection = document.querySelector('.image-section');
-    const dramaInfo = document.querySelector('.drama-info');
-    
-    // 日期直接切换（无动画）
     currentDayOffset++;
-    const targetDate = getDateByOffset(currentDayOffset);
-    document.getElementById('date').textContent = formatDate(targetDate);
-    document.getElementById('weekday').textContent = formatWeekday(targetDate);
     
-    // 其他内容淡出（subtle动效：20px位移，0.3s时长）
-    quoteSection.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-    imageSection.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-    dramaInfo.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-    
-    quoteSection.style.transform = 'translateY(20px)';
-    imageSection.style.transform = 'translateY(20px)';
-    dramaInfo.style.transform = 'translateY(20px)';
-    
-    quoteSection.style.opacity = '0';
-    imageSection.style.opacity = '0';
-    dramaInfo.style.opacity = '0';
+    // 往前翻（更晚日期），从下往上出现
+    updatePage('up');
     
     setTimeout(() => {
-        // 更新内容（不包括日期）
-        const quote = getQuoteByOffset(currentDayOffset);
-        if (quote) {
-            document.getElementById('japanese-quote').textContent = quote.japanese;
-            document.getElementById('chinese-quote').textContent = quote.chinese;
-            document.getElementById('drama-info').textContent = `${quote.drama} (${quote.year})`;
-            
-            const imageElement = document.getElementById('quote-image');
-            imageElement.src = quote.image;
-            imageElement.alt = `${quote.drama} (${quote.year})`;
-        }
-        
-        // 从上方淡入
-        quoteSection.style.transition = 'none';
-        imageSection.style.transition = 'none';
-        dramaInfo.style.transition = 'none';
-        
-        quoteSection.style.transform = 'translateY(-20px)';
-        imageSection.style.transform = 'translateY(-20px)';
-        dramaInfo.style.transform = 'translateY(-20px)';
-        
-        setTimeout(() => {
-            quoteSection.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-            imageSection.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-            dramaInfo.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-            
-            quoteSection.style.transform = 'translateY(0)';
-            imageSection.style.transform = 'translateY(0)';
-            dramaInfo.style.transform = 'translateY(0)';
-            
-            quoteSection.style.opacity = '1';
-            imageSection.style.opacity = '1';
-            dramaInfo.style.opacity = '1';
-            
-            setTimeout(() => {
-                isAnimating = false;
-            }, 300);
-        }, 50);
-    }, 300);
+        isAnimating = false;
+    }, 600); // 等待动画完成
 }
 
 // 设置导航
@@ -615,4 +581,67 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// 管理面板模态框控制
+document.addEventListener('DOMContentLoaded', function() {
+    const openAdminBtn = document.getElementById('openAdminBtn');
+    const closeAdminBtn = document.getElementById('closeAdminBtn');
+    const adminModal = document.getElementById('adminModal');
+    const adminPanelContainer = document.getElementById('adminPanelContainer');
+    
+    // 打开管理面板
+    openAdminBtn.addEventListener('click', function() {
+        adminModal.classList.add('show');
+        
+        // 动态加载管理面板内容
+        if (adminPanelContainer.innerHTML === '') {
+            loadAdminPanel();
+        }
+    });
+    
+    // 关闭管理面板
+    closeAdminBtn.addEventListener('click', function() {
+        adminModal.classList.remove('show');
+        // 刷新主页面以显示可能的更新
+        updatePage();
+    });
+    
+    // 点击模态框背景关闭
+    adminModal.addEventListener('click', function(e) {
+        if (e.target === adminModal) {
+            adminModal.classList.remove('show');
+            updatePage();
+        }
+    });
+});
+
+// 加载管理面板内容
+function loadAdminPanel() {
+    const container = document.getElementById('adminPanelContainer');
+    
+    fetch('admin.html')
+        .then(response => response.text())
+        .then(html => {
+            // 提取 admin.html 中的内容部分
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const adminContent = doc.querySelector('.admin-content');
+            
+            if (adminContent) {
+                container.innerHTML = adminContent.innerHTML;
+                
+                // 重新初始化管理面板的事件监听
+                if (typeof setupEventListeners === 'function') {
+                    setupEventListeners();
+                }
+                if (typeof renderQuotesList === 'function') {
+                    renderQuotesList();
+                }
+            }
+        })
+        .catch(error => {
+            console.error('加载管理面板失败:', error);
+            container.innerHTML = '<p style="color: red;">加载失败，请刷新页面重试</p>';
+        });
+}
 

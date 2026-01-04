@@ -3,6 +3,13 @@ let quotes = [];
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
+    // 初始化全局音乐播放器（在管理页面继续播放音乐）
+    const bgMusic = document.getElementById('bgMusic');
+    if (bgMusic && window.globalMusicPlayer) {
+        window.globalMusicPlayer.setAudio(bgMusic);
+        console.log('✓ 管理页面：全局音乐播放器已初始化');
+    }
+    
     // 临时清空localStorage（解决之前上传大文件导致的超限问题）
     const saved = localStorage.getItem('dailyQuotes');
     if (saved) {

@@ -138,15 +138,14 @@ body {
 
 .end-today {
     position: absolute;
-    left: 0;
-    top: 0;
-    width: 179px;
+    left: 20px;
+    top: 12px;
     font-family: 'Hiragino Mincho Pro', 'Yu Mincho', serif;
     font-size: 80px;
     line-height: normal;
-    color: #212121;
+    color: #858573;
     font-weight: 300;
-    text-align: center;
+    letter-spacing: 3.2px;
 }
 
 .end-quote-section {
@@ -178,19 +177,20 @@ body {
     margin-top: 12px;
     font-weight: 300;
     font-variation-settings: 'wght' 300, 'GRAD' 400;
+    width: 400px;
 }
 
 .end-text {
     position: absolute;
-    right: 0;
-    top: 480px;
-    width: 179px;
+    right: 20px;
+    bottom: 12px;
     font-family: 'Hiragino Mincho Pro', 'Yu Mincho', serif;
     font-size: 80px;
     line-height: normal;
-    color: #212121;
-    text-align: center;
+    color: #858573;
     font-weight: 300;
+    text-align: right;
+    letter-spacing: 3.2px;
 }
 
 /* Date Section */
@@ -331,6 +331,79 @@ body {
     animation: slideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Fade in animations with stagger */
+.fade-in {
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.fade-in-down {
+    animation: fadeInDown 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.fade-in-simple {
+    animation: fadeIn 0.4s ease both;
+}
+
+.fade-in-1 {
+    animation-delay: 0.1s;
+}
+
+.fade-in-2 {
+    animation-delay: 0.25s;
+}
+
+.fade-in-3 {
+    animation-delay: 0.4s;
+}
+
+.fade-in-4 {
+    animation-delay: 0.5s;
+}
+
+/* 反向顺序的延迟（用于往回翻时） */
+.fade-in-reverse-1 {
+    animation-delay: 0.4s;
+}
+
+.fade-in-reverse-2 {
+    animation-delay: 0.25s;
+}
+
+.fade-in-reverse-3 {
+    animation-delay: 0.1s;
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
 @keyframes slideUp {
     0% {
         transform: translateY(0);
@@ -377,5 +450,183 @@ body {
     
     .chinese-quote {
         font-size: 18px;
+    }
+}
+
+/* 管理面板模态框 */
+.admin-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    animation: fadeIn 0.3s ease;
+}
+
+.admin-modal.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.admin-modal-content {
+    background-color: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease;
+}
+
+.admin-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    border-bottom: 1px solid #e0e0e0;
+    background: #f8f8f8;
+}
+
+.admin-modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.admin-modal-close {
+    background: none;
+    border: none;
+    font-size: 36px;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+}
+
+.admin-modal-close:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+#adminPanelContainer {
+    overflow-y: auto;
+    flex: 1;
+    padding: 30px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 管理面板模态框 */
+.admin-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    animation: fadeIn 0.3s ease;
+}
+
+.admin-modal.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.admin-modal-content {
+    background-color: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease;
+}
+
+.admin-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    border-bottom: 1px solid #e0e0e0;
+    background: #f8f8f8;
+}
+
+.admin-modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.admin-modal-close {
+    background: none;
+    border: none;
+    font-size: 36px;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+}
+
+.admin-modal-close:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+#adminPanelContainer {
+    overflow-y: auto;
+    flex: 1;
+    padding: 30px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
     }
 }
