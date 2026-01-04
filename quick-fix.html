@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>快速修复</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 快速修复</h1>
+    <div class="status" id="status">点击下面的按钮清除缓存并重新加载</div>
+    
+    <button class="btn" onclick="fixAndReload()">清除缓存并重新打开</button>
+    
+    <script>
+        function fixAndReload() {
+            const status = document.getElementById('status');
+            status.innerHTML = '正在清除...';
+            
+            // 清除所有缓存
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => caches.delete(name));
+                });
+            }
+            
+            // 清除 Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(reg => reg.unregister());
+                });
+            }
+            
+            status.innerHTML = '✓ 清除完成！正在跳转...';
+            
+            setTimeout(() => {
+                window.location.href = 'admin.html?t=' + Date.now();
+            }, 500);
+        }
+    </script>
+</body>
+</html>

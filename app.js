@@ -593,15 +593,15 @@ document.addEventListener('DOMContentLoaded', function() {
     openAdminBtn.addEventListener('click', function() {
         adminModal.classList.add('show');
         
-        // 动态加载管理面板内容
-        if (adminPanelContainer.innerHTML === '') {
-            loadAdminPanel();
-        }
+        // 每次打开都重新加载，确保数据最新
+        loadAdminPanel();
     });
     
     // 关闭管理面板
     closeAdminBtn.addEventListener('click', function() {
         adminModal.classList.remove('show');
+        // 清空内容，下次打开重新加载
+        adminPanelContainer.innerHTML = '';
         // 刷新主页面以显示可能的更新
         updatePage();
     });
@@ -610,6 +610,8 @@ document.addEventListener('DOMContentLoaded', function() {
     adminModal.addEventListener('click', function(e) {
         if (e.target === adminModal) {
             adminModal.classList.remove('show');
+            // 清空内容
+            adminPanelContainer.innerHTML = '';
             updatePage();
         }
     });

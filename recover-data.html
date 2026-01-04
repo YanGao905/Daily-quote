@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>尝试恢复数据</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .steps {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .steps h3 {
+            margin-top: 0;
+        }
+        .steps ol {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+        .steps li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 数据恢复尝试</h1>
+    
+    <div class="warning">
+        <h2>⚠️ 非常抱歉</h2>
+        <p>由于代码回退时包含了自动清空 localStorage 的逻辑，您的数据被误删了。</p>
+        <p>让我们尝试以下方法恢复：</p>
+    </div>
+
+    <div class="steps">
+        <h3>方法1：检查浏览器缓存的页面</h3>
+        <ol>
+            <li>按 <kbd>Command + Y</kbd> 打开浏览器历史记录</li>
+            <li>搜索 "localhost:8080/admin.html"</li>
+            <li>找到今天上午10点之前访问的管理页面</li>
+            <li>右键点击 → "在新标签页中打开"</li>
+            <li>如果缓存还在，页面可能会显示您的数据</li>
+            <li>打开开发者工具(F12)，在控制台输入：<br>
+                <code>copy(localStorage.getItem('dailyQuotes'))</code></li>
+            <li>然后粘贴给我，我帮您恢复</li>
+        </ol>
+    </div>
+
+    <div class="steps">
+        <h3>方法2：检查 Chrome 本地存储历史</h3>
+        <ol>
+            <li>关闭所有 Chrome 窗口</li>
+            <li>在 Finder 中按 <kbd>Command + Shift + G</kbd></li>
+            <li>输入：<code>~/Library/Application Support/Google/Chrome/Default/Local Storage/leveldb</code></li>
+            <li>查找最近的 .log 文件</li>
+            <li>用文本编辑器打开，搜索 "dailyQuotes"</li>
+        </ol>
+    </div>
+
+    <div class="steps">
+        <h3>方法3：告诉我您记得的内容</h3>
+        <p>如果以上方法都不行，请告诉我您记得添加了哪些台词，我会帮您重新添加：</p>
+        <ul>
+            <li>哪些电视剧/电影？</li>
+            <li>大概有多少条？</li>
+            <li>您记得的任何台词内容</li>
+        </ul>
+    </div>
+
+    <script>
+        console.log('%c尝试恢复数据', 'color: red; font-size: 20px; font-weight: bold;');
+        console.log('请按照页面上的步骤操作');
+        console.log('如果您能找到备份数据，请复制后告诉我');
+    </script>
+</body>
+</html>
