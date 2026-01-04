@@ -1,5 +1,5 @@
 // 从 localStorage 加载或初始化数据
-let quotes = [];
+let adminQuotes = [];
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
@@ -36,10 +36,10 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadQuotes() {
     const savedQuotes = localStorage.getItem('dailyQuotes');
     if (savedQuotes) {
-        quotes = JSON.parse(savedQuotes);
+        adminQuotes = JSON.parse(savedQuotes);
     } else {
         // 如果没有保存的数据，使用默认示例
-        quotes = [
+        adminQuotes = [
             {
                 id: 1,
                 japanese: "人生にはね、長い休みが必要な時もあるのよ",
@@ -56,7 +56,7 @@ function loadQuotes() {
 // 保存数据
 function saveQuotes() {
     try {
-        const jsonString = JSON.stringify(quotes);
+        const jsonString = JSON.stringify(adminQuotes);
         const sizeInMB = (jsonString.length / 1024 / 1024).toFixed(2);
         console.log('准备保存数据，大小:', sizeInMB, 'MB');
         
@@ -193,7 +193,7 @@ function addQuoteWithData(japanese, chinese, drama, year, imageData, musicData) 
     
     try {
         const newQuote = {
-            id: quotes.length > 0 ? Math.max(...quotes.map(q => q.id)) + 1 : 1,
+            id: adminQuotes.length > 0 ? Math.max(...adminQuotes.map(q => q.id)) + 1 : 1,
             japanese,
             chinese,
             drama,
@@ -207,8 +207,8 @@ function addQuoteWithData(japanese, chinese, drama, year, imageData, musicData) 
         }
         
         console.log('新台词对象:', newQuote);
-        quotes.push(newQuote);
-        console.log('当前台词总数:', quotes.length);
+        adminQuotes.push(newQuote);
+        console.log('当前台词总数:', adminQuotes.length);
         
         saveQuotes();
         renderQuotesList();
@@ -218,7 +218,7 @@ function addQuoteWithData(japanese, chinese, drama, year, imageData, musicData) 
     } catch (error) {
         console.error('添加台词失败:', error);
         // 回滚：移除刚添加的数据
-        quotes.pop();
+        adminQuotes.pop();
         alert('添加失败: ' + error.message);
     }
 }
@@ -327,9 +327,9 @@ function renderQuotesList() {
     
     if (!container || !countElement) return; // 如果元素不存在，直接返回
     
-    countElement.textContent = quotes.length;
+    countElement.textContent = adminQuotes.length;
     
-    if (quotes.length === 0) {
+    if (adminQuotes.length === 0) {
         container.innerHTML = `
             <div class="empty-state" style="grid-column: 1/-1;">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -343,7 +343,7 @@ function renderQuotesList() {
     
     const todayDefaultId = getTodayDefaultId();
     
-    container.innerHTML = quotes.map(quote => {
+    container.innerHTML = adminQuotes.map(quote => {
         const isDefault = quote.id === todayDefaultId;
         return `
         <div class="quote-card ${isDefault ? 'is-default' : ''}" data-id="${quote.id}">
@@ -397,7 +397,7 @@ function deleteQuote(id) {
 
 // 编辑台词
 function editQuote(id) {
-    const quote = quotes.find(q => q.id === id);
+    const quote = adminQuotes.find(q => q.id === id);
     if (!quote) return;
     
     document.getElementById('japanese').value = quote.japanese;
@@ -417,7 +417,7 @@ function editQuote(id) {
     preview.classList.add('show');
     
     // 静默删除原有的（不弹出确认框）
-    quotes = quotes.filter(q => q.id !== id);
+    adminQuotes = adminQuotes.filter(q => q.id !== id);
     saveQuotes();
     renderQuotesList();
     
@@ -429,14 +429,14 @@ function editQuote(id) {
 function deleteAllQuotes() {
     if (!confirm('确定要删除所有台词吗？此操作无法撤销！')) return;
     
-    quotes = [];
+    adminQuotes = [];
     saveQuotes();
     renderQuotesList();
 }
 
 // 导出数据
 function exportData() {
-    const dataStr = JSON.stringify(quotes, null, 2);
+    const dataStr = JSON.stringify(adminQuotes, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
     
@@ -463,14 +463,14 @@ function importData(e) {
             }
             
             if (confirm(`将导入 ${importedQuotes.length} 条台词，是否覆盖现有数据？`)) {
-                quotes = importedQuotes;
+                adminQuotes = importedQuotes;
             } else {
                 // 合并数据
-                const maxId = quotes.length > 0 ? Math.max(...quotes.map(q => q.id)) : 0;
+                const maxId = adminQuotes.length > 0 ? Math.max(...adminQuotes.map(q => q.id)) : 0;
                 importedQuotes.forEach((q, index) => {
                     q.id = maxId + index + 1;
                 });
-                quotes = [...quotes, ...importedQuotes];
+                adminQuotes = [...adminQuotes, ...importedQuotes];
             }
             
             saveQuotes();
