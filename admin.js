@@ -10,23 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('✓ 管理页面：全局音乐播放器已初始化');
     }
     
-    // 临时清空localStorage（解决之前上传大文件导致的超限问题）
-    const saved = localStorage.getItem('dailyQuotes');
-    if (saved) {
-        try {
-            const data = JSON.parse(saved);
-            // 检查是否有base64音乐数据（说明是旧数据）
-            const hasBase64Music = data.some(q => q.music && q.music.startsWith('data:'));
-            if (hasBase64Music) {
-                console.log('检测到包含base64音乐的旧数据，清空localStorage');
-                localStorage.removeItem('dailyQuotes');
-                alert('检测到旧的音乐数据（占用空间过大），已清空。请重新添加台词，记得只填写音乐路径，不要上传文件。');
-            }
-        } catch(e) {
-            console.error('localStorage数据解析失败:', e);
-        }
-    }
-    
     loadQuotes();
     renderQuotesList();
     setupEventListeners();
