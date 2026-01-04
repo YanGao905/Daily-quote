@@ -602,6 +602,10 @@ document.addEventListener('DOMContentLoaded', function() {
         adminModal.classList.remove('show');
         // 清空内容，下次打开重新加载
         adminPanelContainer.innerHTML = '';
+        // 清除洗牌缓存，强制重新加载数据
+        shuffledQuotes = null;
+        localStorage.removeItem('shuffledQuotesKey');
+        localStorage.removeItem('shuffledQuotesOrder');
         // 刷新主页面以显示可能的更新
         updatePage();
     });
@@ -612,6 +616,10 @@ document.addEventListener('DOMContentLoaded', function() {
             adminModal.classList.remove('show');
             // 清空内容
             adminPanelContainer.innerHTML = '';
+            // 清除洗牌缓存
+            shuffledQuotes = null;
+            localStorage.removeItem('shuffledQuotesKey');
+            localStorage.removeItem('shuffledQuotesOrder');
             updatePage();
         }
     });
