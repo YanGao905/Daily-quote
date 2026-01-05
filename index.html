@@ -22,15 +22,15 @@
         <div class="container" id="container">
             <!-- 终了页面（未来日期显示） -->
             <div class="end-content" id="endContent" style="display: none;">
-                <div class="end-today">また</div>
+                <div class="end-today" id="endToday"></div>
                 <div class="end-quote-section">
-                    <div class="end-japanese">今日を終えたら、それでいい</div>
-                    <div class="end-chinese">
+                    <div class="end-japanese" id="endJapanese">今日を終えたら、それでいい</div>
+                    <div class="end-chinese" id="endChinese">
                         明天的事，可以明天再想<br>
                         把今天好好过完，就已经足够了
                     </div>
                 </div>
-                <div class="end-text">明日</div>
+                <div class="end-text" id="endText"></div>
             </div>
             
             <!-- 正常台词页面 -->
@@ -187,12 +187,9 @@ function updateDisplay(offset = 0, direction = 0) {
     if (offset > 0) {
         endContent.style.display = 'flex';
         normalContent.style.display = 'none';
-        // 添加淡入动效
-        container.style.opacity = '0';
-        setTimeout(() => {
-            container.style.opacity = '1';
-            container.style.transition = 'opacity 0.3s ease-in-out';
-        }, 10);
+        
+        // 启动終了页面动画
+        animateEndPage();
         return;
     }
     
@@ -264,6 +261,58 @@ function navigate(direction) {
     currentDayOffset += direction;
     updateDisplay(currentDayOffset, direction);
     setTimeout(() => isAnimating = false, 300);
+}
+
+// 終了页面动画
+function animateEndPage() {
+    const endJapanese = document.getElementById('endJapanese');
+    const endChinese = document.getElementById('endChinese');
+    const endToday = document.getElementById('endToday');
+    const endText = document.getElementById('endText');
+    
+    // 重置动画
+    endJapanese.classList.remove('animate');
+    endChinese.classList.remove('animate');
+    endToday.innerHTML = '';
+    endText.innerHTML = '';
+    
+    // 1. 先显示日文（延迟200ms开始）
+    setTimeout(() => {
+        endJapanese.classList.add('animate');
+    }, 200);
+    
+    // 2. 显示中文（日文动画开始后300ms）
+    setTimeout(() => {
+        endChinese.classList.add('animate');
+    }, 500);
+    
+    // 3. 逐字显示"また"（中文显示后600ms开始）
+    setTimeout(() => {
+        const todayText = 'また';
+        todayText.split('').forEach((char, index) => {
+            setTimeout(() => {
+                const span = document.createElement('span');
+                span.textContent = char;
+                span.classList.add('animate');
+                span.style.animationDelay = '0s';
+                endToday.appendChild(span);
+            }, index * 200);
+        });
+    }, 1100);
+    
+    // 4. 逐字显示"明日"（"また"显示完后200ms）
+    setTimeout(() => {
+        const textText = '明日';
+        textText.split('').forEach((char, index) => {
+            setTimeout(() => {
+                const span = document.createElement('span');
+                span.textContent = char;
+                span.classList.add('animate');
+                span.style.animationDelay = '0s';
+                endText.appendChild(span);
+            }, index * 200);
+        });
+    }, 1900);
 }
 
 // ==================== 音乐播放器 ====================
@@ -411,14 +460,53 @@ document.addEventListener('DOMContentLoaded', () => {
     // 显示今天的台词
     updateDisplay(0);
     
-    // 音乐按钮事件
+    // 从今天的台词加载音乐并自动播放
+    const todayQuote = getQuoteByOffset(0);
+    console.log('今日台词数据:', todayQuote);
+    if (todayQuote && todayQuote.music) {
+        console.log('✓ 找到音乐:', todayQuote.music);
+        bgMusic.src = todayQuote.music;
+        bgMusic.volume = 0.3;
+        bgMusic.loop = true;
+        
+        // 尝试自动播放
+        const playPromise = bgMusic.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                console.log('✓ 音乐自动播放成功');
+                musicBtn.classList.add('playing');
+            }).catch(err => {
+                console.log('⚠️ 自动播放被阻止，请点击音乐按钮手动播放');
+                musicBtn.classList.remove('playing');
+            });
+        }
+    } else {
+        console.warn('⚠️ 今日台词没有音乐字段，music =', todayQuote?.music);
+    }
+    
+    // 监听播放状态变化，控制旋转动画
+    bgMusic.addEventListener('play', () => {
+        musicBtn.classList.add('playing');
+    });
+    
+    bgMusic.addEventListener('pause', () => {
+        musicBtn.classList.remove('playing');
+    });
+    
+    // 音乐按钮点击事件：切换播放/暂停
     musicBtn.addEventListener('click', () => {
+        console.log('音乐按钮被点击，当前状态:', bgMusic.paused ? '暂停' : '播放中');
+        console.log('音乐源:', bgMusic.src);
+        
         if (bgMusic.paused) {
-            bgMusic.play().catch(err => {
-                console.log('播放失败:', err);
+            bgMusic.play().then(() => {
+                console.log('✓ 播放成功');
+            }).catch(err => {
+                console.error('✗ 播放失败:', err);
             });
         } else {
             bgMusic.pause();
+            console.log('已暂停');
         }
     });
     

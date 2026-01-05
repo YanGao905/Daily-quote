@@ -136,7 +136,7 @@ body {
 }
 
 .music-btn.playing {
-    animation: none;
+    animation: rotate 3s linear infinite;
 }
 
 .music-btn.muted {
@@ -201,6 +201,11 @@ body {
     letter-spacing: 3.2px;
 }
 
+.end-today span {
+    display: inline-block;
+    opacity: 0;
+}
+
 .end-quote-section {
     position: absolute;
     left: 50%;
@@ -219,6 +224,7 @@ body {
     font-weight: 300;
     width: 331px;
     margin: 0 auto;
+    opacity: 0;
 }
 
 .end-chinese {
@@ -231,6 +237,7 @@ body {
     font-weight: 300;
     font-variation-settings: 'wght' 300, 'GRAD' 400;
     width: 400px;
+    opacity: 0;
 }
 
 .end-text {
@@ -244,6 +251,39 @@ body {
     font-weight: 300;
     text-align: right;
     letter-spacing: 3.2px;
+}
+
+.end-text span {
+    display: inline-block;
+    opacity: 0;
+}
+
+/* 終了页面动画 */
+@keyframes fadeInEnd {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.end-japanese.animate {
+    animation: fadeInEnd 0.8s ease-out forwards;
+}
+
+.end-chinese.animate {
+    animation: fadeInEnd 0.8s ease-out 0.3s forwards;
+}
+
+.end-today span.animate {
+    animation: fadeInEnd 0.4s ease-out forwards;
+}
+
+.end-text span.animate {
+    animation: fadeInEnd 0.4s ease-out forwards;
 }
 
 /* Date Section */
