@@ -4,27 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Quote - 每日一句</title>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="description" content="每天一句日剧经典台词，中日文对照">
-    <meta name="theme-color" content="#f6f8ea">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Daily Quote">
-    
-    <!-- Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Icons -->
-    <link rel="icon" type="image/svg+xml" href="icon-192.svg">
-    <link rel="apple-touch-icon" href="icon-192.svg">
-    
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="admin.css">
 </head>
 <body>
     <div class="app-wrapper">
-        <!-- Admin Button -->
         <button class="admin-btn" id="openAdminBtn" title="管理台词">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
@@ -33,8 +20,8 @@
         </button>
         
         <div class="container" id="container">
-            <!-- 终了页面 -->
-            <div class="end-content">
+            <!-- 终了页面（未来日期显示） -->
+            <div class="end-content" id="endContent" style="display: none;">
                 <div class="end-today">また</div>
                 <div class="end-quote-section">
                     <div class="end-japanese">今日を終えたら、それでいい</div>
@@ -46,43 +33,30 @@
                 <div class="end-text">明日</div>
             </div>
             
-            <!-- Date Section -->
-            <div class="date-section">
-            <span class="date" id="date">Jan 1</span>
-            <span class="divider">|</span>
-            <span class="weekday" id="weekday">Thur</span>
-        </div>
-
-        <!-- Quote Section -->
-        <div class="quote-section">
-            <div class="japanese-quote" id="japanese-quote">
-                人生にはね、長い休みが必要な時もあるのよ
+            <!-- 正常台词页面 -->
+            <div id="normalContent">
+                <div class="date-section">
+                    <span class="date" id="date">Jan 1</span>
+                    <span class="divider">|</span>
+                    <span class="weekday" id="weekday">Thur</span>
+                </div>
+                <div class="quote-section">
+                    <div class="japanese-quote" id="japanese-quote"></div>
+                    <div class="chinese-quote" id="chinese-quote"></div>
+                </div>
+                <div class="image-section">
+                    <img id="quote-image" src="images/default.png" alt="Drama Scene">
+                </div>
+                <div class="drama-info" id="drama-info"></div>
             </div>
-            <div class="chinese-quote" id="chinese-quote">
-                人生啊，也会有需要放长假的时候
-            </div>
+            
+            <audio id="bgMusic" loop preload="metadata"></audio>
+            <button class="music-btn" id="musicBtn" title="点击静音/取消静音">
+                <svg width="11" height="14" viewBox="0 0 11 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 4.08451V9.14254C9.70583 8.97237 9.36429 8.87498 9 8.87498C7.89543 8.87498 7 9.77041 7 10.875C7 11.9795 7.89543 12.875 9 12.875C10.1046 12.875 11 11.9795 11 10.875V0.800677C11 0.247451 10.4519 -0.138787 9.93093 0.0472831L3.53093 2.333C3.21254 2.44671 3 2.7483 3 3.08639V10.1425C2.70583 9.97237 2.36429 9.87498 2 9.87498C0.895431 9.87498 0 10.7704 0 11.875C0 12.9795 0.895431 13.875 2 13.875C3.10457 13.875 4 12.9795 4 11.875V6.22737L10 4.08451Z" fill="#424242"/>
+                </svg>
+            </button>
         </div>
-
-        <!-- Image Section -->
-        <div class="image-section">
-            <img id="quote-image" src="images/default.png" alt="Drama Scene">
-        </div>
-
-        <!-- Drama Info Section -->
-        <div class="drama-info" id="drama-info">
-            悠长假期 (1996)
-        </div>
-        
-        <!-- 背景音乐 -->
-        <audio id="bgMusic" loop preload="metadata"></audio>
-        <button class="music-btn" id="musicBtn" title="点击静音/取消静音">
-            <svg width="11" height="14" viewBox="0 0 11 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10 4.08451V9.14254C9.70583 8.97237 9.36429 8.87498 9 8.87498C7.89543 8.87498 7 9.77041 7 10.875C7 11.9795 7.89543 12.875 9 12.875C10.1046 12.875 11 11.9795 11 10.875V0.800677C11 0.247451 10.4519 -0.138787 9.93093 0.0472831L3.53093 2.333C3.21254 2.44671 3 2.7483 3 3.08639V10.1425C2.70583 9.97237 2.36429 9.87498 2 9.87498C0.895431 9.87498 0 10.7704 0 11.875C0 12.9795 0.895431 13.875 2 13.875C3.10457 13.875 4 12.9795 4 11.875V6.22737L10 4.08451Z" fill="#424242"/>
-            </svg>
-        </button>
-        </div>
-
-        <!-- Navigation Arrows -->
         <div class="nav-arrow nav-arrow-up" id="nav-up">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path d="M7 14L12 9L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -94,8 +68,6 @@
             </svg>
         </div>
     </div>
-
-    <!-- 管理面板模态框 -->
     <div id="adminModal" class="admin-modal">
         <div class="admin-modal-content">
             <div class="admin-modal-header">
@@ -106,21 +78,373 @@
         </div>
     </div>
 
-    <script src="music-player.js"></script>
-    <script src="quotes.js"></script>
-    <script src="app.js"></script>
-    <script src="admin.js"></script>
-    
-    <!-- 卸载 Service Worker 防止缓存 -->
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                for(let registration of registrations) {
-                    registration.unregister();
-                    console.log('Service Worker 已卸载');
-                }
-            });
+// ==================== 核心功能：完全内联 ====================
+let currentDayOffset = 0;
+let isAnimating = false;
+let lastDirection = 0; // 记录上次翻页的方向：-1向前(过去)，1向后(未来)
+
+// 从localStorage加载数据
+function loadQuotes() {
+    const savedQuotes = localStorage.getItem('dailyQuotes');
+    if (savedQuotes) {
+        try {
+            const data = JSON.parse(savedQuotes);
+            if (Array.isArray(data) && data.length > 0) {
+                console.log('✓ 从localStorage加载:', data.length, '条台词');
+                return data;
+            }
+        } catch (e) {
+            console.error('✗ localStorage数据解析失败:', e);
         }
+    }
+    console.warn('⚠️ localStorage中没有数据');
+    return [];
+}
+
+// 获取所有台词
+function getAllQuotes() {
+    return loadQuotes();
+}
+
+// 格式化日期
+function formatDate(date) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[date.getMonth()]} ${date.getDate()}`;
+}
+
+// 格式化星期
+function formatWeekday(date) {
+    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
+    return weekdays[date.getDay()];
+}
+
+// 获取指定偏移的日期
+function getDateByOffset(offset) {
+    const date = new Date();
+    date.setDate(date.getDate() + offset);
+    return date;
+}
+
+// 根据偏移获取台词
+function getQuoteByOffset(offset) {
+    const allQuotes = getAllQuotes();
+    if (!allQuotes || allQuotes.length === 0) {
+        console.warn('⚠️ 没有可用的台词数据');
+        return null;
+    }
+    
+    // 如果是今天（offset=0），优先返回设置为"今日默认"的台词
+    if (offset === 0) {
+        const todayDefaultId = localStorage.getItem('todayDefaultQuote');
+        if (todayDefaultId) {
+            const defaultQuote = allQuotes.find(q => q.id === parseInt(todayDefaultId));
+            if (defaultQuote) {
+                console.log('✓ 使用今日默认台词:', defaultQuote.japanese);
+                return defaultQuote;
+            }
+        }
+    }
+    
+    // 其他日期：使用打乱算法，确保连续页面不是同一部剧
+    // 创建一个基于offset的伪随机序列
+    const shuffleIndex = (offset) => {
+        // 使用简单的哈希函数打乱顺序
+        let hash = Math.abs(offset * 2654435761) % allQuotes.length;
+        return hash;
+    };
+    
+    let index = shuffleIndex(offset);
+    const currentQuote = allQuotes[index];
+    
+    // 检查前一个和后一个offset对应的台词，避免连续同一部剧
+    const prevOffset = offset - 1;
+    const prevIndex = (prevOffset === 0) ? 
+        allQuotes.findIndex(q => q.id === parseInt(localStorage.getItem('todayDefaultQuote') || '-1')) :
+        shuffleIndex(prevOffset);
+    
+    if (prevIndex >= 0 && prevIndex < allQuotes.length) {
+        const prevQuote = allQuotes[prevIndex];
+        if (prevQuote && currentQuote.drama === prevQuote.drama && allQuotes.length > 1) {
+            // 如果和前一个是同一部剧，跳到下一个
+            index = (index + 1) % allQuotes.length;
+        }
+    }
+    
+    return allQuotes[index];
+}
+
+// 更新UI显示
+function updateDisplay(offset = 0, direction = 0) {
+    const container = document.getElementById('container');
+    const endContent = document.getElementById('endContent');
+    const normalContent = document.getElementById('normalContent');
+    const japaneseQuote = document.getElementById('japanese-quote');
+    const chineseQuote = document.getElementById('chinese-quote');
+    const imageSection = document.querySelector('.image-section');
+    
+    // 如果是未来日期（offset > 0），显示终了页面
+    if (offset > 0) {
+        endContent.style.display = 'flex';
+        normalContent.style.display = 'none';
+        // 添加淡入动效
+        container.style.opacity = '0';
+        setTimeout(() => {
+            container.style.opacity = '1';
+            container.style.transition = 'opacity 0.3s ease-in-out';
+        }, 10);
+        return;
+    }
+    
+    // 显示正常内容
+    endContent.style.display = 'none';
+    normalContent.style.display = 'block';
+    
+    // 移除之前的动画类
+    japaneseQuote.classList.remove('animate-fadeInUp-1', 'animate-fadeInUp-2', 'animate-fadeInUp-3', 'animate-fadeInDown-1', 'animate-fadeInDown-2', 'animate-fadeInDown-3');
+    chineseQuote.classList.remove('animate-fadeInUp-1', 'animate-fadeInUp-2', 'animate-fadeInUp-3', 'animate-fadeInDown-1', 'animate-fadeInDown-2', 'animate-fadeInDown-3');
+    imageSection.classList.remove('animate-fadeInUp-1', 'animate-fadeInUp-2', 'animate-fadeInUp-3', 'animate-fadeInDown-1', 'animate-fadeInDown-2', 'animate-fadeInDown-3');
+    
+    const targetDate = getDateByOffset(offset);
+    const quote = getQuoteByOffset(offset);
+    
+    // 更新日期
+    document.getElementById('date').textContent = formatDate(targetDate);
+    document.getElementById('weekday').textContent = formatWeekday(targetDate);
+    
+    if (!quote) {
+        document.getElementById('japanese-quote').textContent = '还没有添加台词';
+        document.getElementById('chinese-quote').textContent = '请前往管理页面添加台词';
+        document.getElementById('quote-image').style.display = 'none';
+        document.getElementById('drama-info').textContent = '';
+        return;
+    }
+    
+    // 更新台词
+    document.getElementById('japanese-quote').textContent = quote.japanese || '';
+    document.getElementById('chinese-quote').textContent = quote.chinese || '';
+    document.getElementById('drama-info').textContent = `${quote.drama || ''} ${quote.year ? '(' + quote.year + ')' : ''}`;
+    
+    // 更新图片
+    const img = document.getElementById('quote-image');
+    if (quote.image) {
+        img.src = quote.image;
+        img.style.display = 'block';
+        img.onerror = () => img.style.display = 'none';
+    } else {
+        img.style.display = 'none';
+    }
+    
+    // 添加错位动画
+    if (offset <= 0) {
+        // 强制重绘以重启动画
+        void japaneseQuote.offsetWidth;
+        void chineseQuote.offsetWidth;
+        void imageSection.offsetWidth;
+        
+        if (direction < 0) {
+            // 往回翻（看过去）：从上往下，图片→中文→日语
+            imageSection.classList.add('animate-fadeInDown-1');
+            chineseQuote.classList.add('animate-fadeInDown-2');
+            japaneseQuote.classList.add('animate-fadeInDown-3');
+        } else if (direction > 0) {
+            // 往前翻（从过去往现在）：从下往上，日语→中文→图片
+            japaneseQuote.classList.add('animate-fadeInUp-1');
+            chineseQuote.classList.add('animate-fadeInUp-2');
+            imageSection.classList.add('animate-fadeInUp-3');
+        }
+    }
+}
+
+// 导航功能
+function navigate(direction) {
+    if (isAnimating) return;
+    isAnimating = true;
+    lastDirection = direction;
+    currentDayOffset += direction;
+    updateDisplay(currentDayOffset, direction);
+    setTimeout(() => isAnimating = false, 300);
+}
+
+// ==================== 音乐播放器 ====================
+class GlobalMusicPlayer {
+    constructor() {
+        this.audio = null;
+        this.storageKey = 'globalMusicState';
+        this.updateInterval = null;
+        this.init();
+    }
+
+    init() {
+        // 监听其他标签页的状态变化
+        window.addEventListener('storage', (e) => {
+            if (e.key === this.storageKey) {
+                this.syncFromStorage();
+            }
+        });
+
+        // 页面可见性变化时同步状态
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                this.syncFromStorage();
+            }
+        });
+
+        // 页面卸载前保存状态
+        window.addEventListener('beforeunload', () => {
+            this.saveState();
+        });
+
+        window.addEventListener('pagehide', (e) => {
+            this.saveState();
+        });
+    }
+
+    // 初始化音频元素
+    setAudio(audioElement) {
+        this.audio = audioElement;
+        
+        // 监听播放状态变化
+        this.audio.addEventListener('play', () => this.saveState());
+        this.audio.addEventListener('pause', () => this.saveState());
+        this.audio.addEventListener('volumechange', () => this.saveState());
+        this.audio.addEventListener('loadedmetadata', () => this.saveState());
+        
+        // 定期保存播放进度
+        this.audio.addEventListener('timeupdate', () => {
+            if (this.audio.played.length > 0) {
+                this.saveState();
+            }
+        });
+
+        // 从存储中恢复状态
+        this.syncFromStorage();
+    }
+
+    // 保存当前播放状态
+    saveState() {
+        if (!this.audio) return;
+
+        const state = {
+            src: this.audio.src,
+            currentTime: this.audio.currentTime,
+            volume: this.audio.volume,
+            muted: this.audio.muted,
+            playing: !this.audio.paused,
+            timestamp: Date.now()
+        };
+
+        try {
+            localStorage.setItem(this.storageKey, JSON.stringify(state));
+        } catch (e) {
+            console.error('保存音乐状态失败:', e);
+        }
+    }
+
+    // 从存储中恢复状态
+    syncFromStorage() {
+        if (!this.audio) return;
+
+        try {
+            const savedState = localStorage.getItem(this.storageKey);
+            if (!savedState) return;
+
+            const state = JSON.parse(savedState);
+            
+            // 检查状态是否过期（超过5秒认为是旧状态）
+            if (Date.now() - state.timestamp > 5000) {
+                return;
+            }
+
+            // 如果音频源不同，加载新音频
+            if (state.src && state.src !== this.audio.src) {
+                this.audio.src = state.src;
+            }
+
+            // 恢复播放进度
+            if (state.currentTime !== undefined && Math.abs(this.audio.currentTime - state.currentTime) > 1) {
+                this.audio.currentTime = state.currentTime;
+            }
+
+            // 恢复音量和静音状态
+            if (state.volume !== undefined) {
+                this.audio.volume = state.volume;
+            }
+            if (state.muted !== undefined) {
+                this.audio.muted = state.muted;
+            }
+
+            // 恢复播放状态
+            if (state.playing && this.audio.paused) {
+                // 尝试自动播放（可能受浏览器策略限制）
+                const playPromise = this.audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log('自动播放被阻止，需要用户交互:', error);
+                    });
+                }
+            }
+        } catch (e) {
+            console.error('恢复音乐状态失败:', e);
+        }
+    }
+
+    // 清除状态
+    clearState() {
+        try {
+            localStorage.removeItem(this.storageKey);
+        } catch (e) {
+            console.error('清除音乐状态失败:', e);
+        }
+    }
+}
+
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+    // 初始化音乐播放器
+    const globalMusicPlayer = new GlobalMusicPlayer();
+    const bgMusic = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicBtn');
+    
+    globalMusicPlayer.setAudio(bgMusic);
+    
+    // 显示今天的台词
+    updateDisplay(0);
+    
+    // 音乐按钮事件
+    musicBtn.addEventListener('click', () => {
+        if (bgMusic.paused) {
+            bgMusic.play().catch(err => {
+                console.log('播放失败:', err);
+            });
+        } else {
+            bgMusic.pause();
+        }
+    });
+    
+    // 绑定导航按钮
+    document.getElementById('nav-up').addEventListener('click', () => navigate(-1));
+    document.getElementById('nav-down').addEventListener('click', () => navigate(1));
+    
+    // 绑定管理按钮
+    document.getElementById('openAdminBtn').addEventListener('click', () => {
+        window.location.href = 'admin.html';
+    });
+    
+    // 绑定键盘事件
+    document.addEventListener('keydown', (e) => {
+        // 左箭头或上箭头：前一天
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            navigate(-1);
+        }
+        // 右箭头或下箭头：后一天
+        else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            navigate(1);
+        }
+    });
+});
     </script>
 </body>
 </html>

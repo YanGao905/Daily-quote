@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>调试页面</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; }
+        .section { margin: 20px 0; padding: 15px; background: #2d2d2d; border-radius: 5px; }
+        .title { color: #4ec9b0; font-size: 18px; margin-bottom: 10px; }
+        pre { background: #1e1e1e; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { background: #0e639c; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 3px; margin: 5px; }
+        button:hover { background: #1177bb; }
+        .error { color: #f48771; }
+        .success { color: #4ec9b0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Daily Quote 调试诊断</h1>
+    
+    <div class="section">
+        <div class="title">📅 日期检查</div>
+        <pre id="dateInfo"></pre>
+    </div>
+    
+    <div class="section">
+        <div class="title">💾 localStorage 数据</div>
+        <pre id="localStorageInfo"></pre>
+    </div>
+    
+    <div class="section">
+        <div class="title">📜 加载的 quotes.js</div>
+        <pre id="quotesJsInfo"></pre>
+    </div>
+    
+    <div class="section">
+        <div class="title">🔧 函数测试</div>
+        <button onclick="testLoadQuotes()">测试 loadQuotes()</button>
+        <button onclick="testGetAllQuotes()">测试 getAllQuotes()</button>
+        <button onclick="clearAndReload()">清除缓存并重载</button>
+        <pre id="testResults"></pre>
+    </div>
+
+    <script src="quotes.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // 显示日期信息
+        function showDateInfo() {
+            const now = new Date();
+            const info = `
+当前时间: ${now.toLocaleString('zh-CN')}
+ISO 格式: ${now.toISOString()}
+时间戳: ${now.getTime()}
+年: ${now.getFullYear()}
+月: ${now.getMonth() + 1}
+日: ${now.getDate()}
+星期: ${now.getDay()} (0=周日)
+            `;
+            document.getElementById('dateInfo').textContent = info;
+        }
+        
+        // 显示localStorage信息
+        function showLocalStorage() {
+            const data = localStorage.getItem('dailyQuotes');
+            let info = '';
+            
+            if (!data) {
+                info = '❌ localStorage中没有数据';
+            } else {
+                try {
+                    const parsed = JSON.parse(data);
+                    info = `✅ 找到 ${parsed.length} 条台词:\n\n`;
+                    parsed.forEach((q, i) => {
+                        info += `${i + 1}. ${q.drama || '未命名'}\n`;
+                        info += `   日文: ${q.japanese ? q.japanese.substring(0, 30) + '...' : '无'}\n`;
+                        info += `   中文: ${q.chinese ? q.chinese.substring(0, 30) + '...' : '无'}\n`;
+                        info += `   图片: ${q.image || '无'}\n\n`;
+                    });
+                    
+                    info += '\n原始JSON (前500字符):\n';
+                    info += data.substring(0, 500) + '...';
+                } catch (e) {
+                    info = `❌ 解析失败: ${e.message}\n\n原始数据:\n${data.substring(0, 200)}`;
+                }
+            }
+            
+            document.getElementById('localStorageInfo').textContent = info;
+        }
+        
+        // 显示quotes.js信息
+        function showQuotesJs() {
+            let info = '';
+            
+            if (typeof quotes === 'undefined') {
+                info = '❌ quotes 变量未定义';
+            } else if (!Array.isArray(quotes)) {
+                info = `❌ quotes 不是数组: ${typeof quotes}`;
+            } else {
+                info = `✅ quotes.js 包含 ${quotes.length} 条台词\n`;
+                info += `第一条: ${quotes[0] ? quotes[0].drama : '无'}`;
+            }
+            
+            document.getElementById('quotesJsInfo').textContent = info;
+        }
+        
+        // 测试loadQuotes函数
+        function testLoadQuotes() {
+            const results = document.getElementById('testResults');
+            try {
+                const loaded = loadQuotes();
+                results.innerHTML = `<span class="success">✅ loadQuotes() 返回了 ${loaded ? loaded.length : 0} 条数据</span>\n\n`;
+                
+                if (loaded && loaded.length > 0) {
+                    results.innerHTML += `第一条:\n${JSON.stringify(loaded[0], null, 2)}`;
+                }
+            } catch (e) {
+                results.innerHTML = `<span class="error">❌ 错误: ${e.message}\n${e.stack}</span>`;
+            }
+        }
+        
+        // 测试getAllQuotes函数
+        function testGetAllQuotes() {
+            const results = document.getElementById('testResults');
+            try {
+                const all = getAllQuotes();
+                results.innerHTML = `<span class="success">✅ getAllQuotes() 返回了 ${all ? all.length : 0} 条数据</span>\n\n`;
+                
+                if (all && all.length > 0) {
+                    results.innerHTML += `第一条:\n${JSON.stringify(all[0], null, 2)}`;
+                }
+            } catch (e) {
+                results.innerHTML = `<span class="error">❌ 错误: ${e.message}\n${e.stack}</span>`;
+            }
+        }
+        
+        // 清除并重载
+        function clearAndReload() {
+            if (confirm('确定要清除所有localStorage数据吗？')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+        
+        // 页面加载时显示信息
+        showDateInfo();
+        showLocalStorage();
+        showQuotesJs();
+    </script>
+</body>
+</html>

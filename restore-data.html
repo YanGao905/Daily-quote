@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>恢复数据</title>
+</head>
+<body>
+    <h1>正在恢复数据...</h1>
+    
+    <script src="quotes.js"></script>
+    <script>
+        // 立即保存默认数据到localStorage
+        if (typeof quotes !== 'undefined' && quotes.length > 0) {
+            localStorage.setItem('dailyQuotes', JSON.stringify(quotes));
+            console.log('✓ 已保存', quotes.length, '条默认数据');
+            alert('数据已恢复！共 ' + quotes.length + ' 条台词');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        } else {
+            alert('错误：找不到默认数据');
+        }
+    </script>
+</body>
+</html>

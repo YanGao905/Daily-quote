@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>测试 - 完全不缓存</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #4ec9b0; }
+        pre { background: #2d2d2d; padding: 15px; border-radius: 5px; }
+        .success { color: #4ec9b0; }
+        .error { color: #f48771; }
+    </style>
+</head>
+<body>
+    <h1>🔬 直接内联代码测试</h1>
+    <pre id="result"></pre>
+
+    <script>
+        const result = document.getElementById('result');
+        let output = '';
+        
+        // 1. 检查 localStorage
+        output += '=== 检查 localStorage ===\n';
+        const savedQuotes = localStorage.getItem('dailyQuotes');
+        if (savedQuotes) {
+            try {
+                const data = JSON.parse(savedQuotes);
+                output += `✅ localStorage 有 ${data.length} 条数据\n`;
+                output += `第一条: ${data[0].drama}\n`;
+                output += `最后一条: ${data[data.length - 1].drama}\n\n`;
+            } catch (e) {
+                output += `❌ 解析失败: ${e.message}\n\n`;
+            }
+        } else {
+            output += '❌ localStorage 中没有数据\n\n';
+        }
+        
+        // 2. 直接定义 loadQuotes 函数（内联，不依赖外部JS）
+        output += '=== 测试 loadQuotes 函数 ===\n';
+        function loadQuotes() {
+            const savedQuotes = localStorage.getItem('dailyQuotes');
+            if (savedQuotes) {
+                try {
+                    const data = JSON.parse(savedQuotes);
+                    if (Array.isArray(data) && data.length > 0) {
+                        console.log('✓ 从localStorage加载:', data.length, '条台词');
+                        return data;
+                    }
+                } catch (e) {
+                    console.error('✗ localStorage数据解析失败:', e);
+                }
+            }
+            console.log('使用默认数据（但这里没有quotes.js）');
+            return [];
+        }
+        
+        const loaded = loadQuotes();
+        output += `loadQuotes() 返回: ${loaded.length} 条数据\n`;
+        if (loaded.length > 0) {
+            output += `第一条: ${loaded[0].drama}\n`;
+            output += `最后一条: ${loaded[loaded.length - 1].drama}\n\n`;
+        }
+        
+        // 3. 测试日期计算
+        output += '=== 测试日期函数 ===\n';
+        const today = new Date();
+        output += `当前时间: ${today.toLocaleString('zh-CN')}\n`;
+        output += `年: ${today.getFullYear()}, 月: ${today.getMonth() + 1}, 日: ${today.getDate()}\n`;
+        output += `星期: ${today.getDay()} (0=周日, 6=周六)\n\n`;
+        
+        // 格式化日期
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
+        
+        const dateStr = `${months[today.getMonth()]} ${today.getDate()}`;
+        const weekdayStr = weekdays[today.getDay()];
+        
+        output += `格式化结果: ${dateStr} | ${weekdayStr}\n`;
+        output += `（今天是2026年1月4日星期六，应该显示: Jan 4 | Sat）\n\n`;
+        
+        // 4. 结论
+        output += '=== 结论 ===\n';
+        if (loaded.length > 0 && dateStr === 'Jan 4' && weekdayStr === 'Sat') {
+            output += '✅ 所有逻辑正常！问题是浏览器加载了旧的缓存JS文件。\n';
+            output += '解决方案：需要强制浏览器重新加载JS文件。\n';
+        } else {
+            output += `❌ 逻辑有问题:\n`;
+            output += `- 数据加载: ${loaded.length > 0 ? '✅' : '❌'}\n`;
+            output += `- 日期显示: ${dateStr === 'Jan 4' ? '✅' : '❌'}\n`;
+            output += `- 星期显示: ${weekdayStr === 'Sat' ? '✅' : '❌'}\n`;
+        }
+        
+        result.textContent = output;
+    </script>
+</body>
+</html>

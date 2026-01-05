@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>测试localStorage</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #4ec9b0; }
+        pre { background: #2d2d2d; padding: 15px; border-radius: 5px; white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h1>localStorage 数据检查</h1>
+    <pre id="output"></pre>
+    <script>
+        const data = localStorage.getItem('dailyQuotes');
+        const output = document.getElementById('output');
+        
+        if (!data) {
+            output.textContent = '❌ localStorage 中没有 dailyQuotes 数据';
+        } else {
+            try {
+                const parsed = JSON.parse(data);
+                output.textContent = `✅ 找到 ${parsed.length} 条台词\n\n完整数据:\n${JSON.stringify(parsed, null, 2)}`;
+            } catch (e) {
+                output.textContent = `❌ 解析失败: ${e.message}\n\n原始数据:\n${data}`;
+            }
+        }
+    </script>
+</body>
+</html>

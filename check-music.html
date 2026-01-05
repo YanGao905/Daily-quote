@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>检查音乐数据</title>
+</head>
+<body>
+    <h2>LocalStorage 音乐数据检查</h2>
+    <pre id="output"></pre>
+    <script>
+        const quotes = JSON.parse(localStorage.getItem('dailyQuotes') || '[]');
+        const output = document.getElementById('output');
+        output.textContent = '台词数量: ' + quotes.length + '\n\n';
+        quotes.forEach((q, i) => {
+            output.textContent += `台词 ${i + 1}:\n`;
+            output.textContent += `  日语: ${q.japanese}\n`;
+            output.textContent += `  中文: ${q.chinese}\n`;
+            output.textContent += `  音乐: ${q.bgMusic || '(无)'}\n\n`;
+        });
+    </script>
+</body>
+</html>

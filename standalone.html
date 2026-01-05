@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Quote - 独立版本</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f6f8ea; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        .date-section {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .japanese-quote {
+            font-size: 20px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .chinese-quote {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .image-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .image-section img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+        .drama-info {
+            text-align: center;
+            font-size: 14px;
+            color: #999;
+        }
+        .nav-arrow {
+            position: fixed;
+            cursor: pointer;
+            padding: 10px;
+            color: #666;
+        }
+        .nav-arrow-up { top: 50%; transform: translateY(-50%); left: 20px; }
+        .nav-arrow-down { top: 50%; transform: translateY(-50%); right: 20px; }
+        .admin-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <button class="admin-btn" onclick="window.location.href='admin.html'" title="管理台词">⚙️</button>
+    
+    <div class="nav-arrow nav-arrow-up" onclick="navigate(-1)">←</div>
+    <div class="nav-arrow nav-arrow-down" onclick="navigate(1)">→</div>
+    
+    <div class="container" id="app"></div>
+
+    <script>
+        // 全局变量
+        let currentOffset = 0;
+        let allQuotes = [];
+
+        // 从localStorage加载数据
+        function loadQuotes() {
+            const saved = localStorage.getItem('dailyQuotes');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    if (Array.isArray(data) && data.length > 0) {
+                        console.log('✓ 从localStorage加载:', data.length, '条台词');
+                        return data;
+                    }
+                } catch (e) {
+                    console.error('解析失败:', e);
+                }
+            }
+            console.log('⚠️ localStorage中没有数据');
+            return [];
+        }
+
+        // 格式化日期
+        function formatDate(date) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${months[date.getMonth()]} ${date.getDate()}`;
+        }
+
+        // 格式化星期
+        function formatWeekday(date) {
+            const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
+            return weekdays[date.getDay()];
+        }
+
+        // 获取指定偏移的日期
+        function getDateByOffset(offset) {
+            const date = new Date();
+            date.setDate(date.getDate() + offset);
+            return date;
+        }
+
+        // 根据日期获取台词
+        function getQuoteByDate(date) {
+            if (!allQuotes || allQuotes.length === 0) {
+                return null;
+            }
+            
+            // 使用日期的天数作为索引
+            const dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
+            const index = dayOfYear % allQuotes.length;
+            return allQuotes[index];
+        }
+
+        // 渲染页面
+        function render() {
+            const app = document.getElementById('app');
+            const targetDate = getDateByOffset(currentOffset);
+            const quote = getQuoteByDate(targetDate);
+            
+            const dateStr = formatDate(targetDate);
+            const weekdayStr = formatWeekday(targetDate);
+            
+            if (!quote) {
+                app.innerHTML = `
+                    <div class="empty-state">
+                        <div class="date-section">${dateStr} | ${weekdayStr}</div>
+                        <h2>还没有添加台词</h2>
+                        <p>请前往管理页面添加台词</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            app.innerHTML = `
+                <div class="date-section">${dateStr} | ${weekdayStr}</div>
+                <div class="japanese-quote">${quote.japanese || ''}</div>
+                <div class="chinese-quote">${quote.chinese || ''}</div>
+                ${quote.image ? `
+                    <div class="image-section">
+                        <img src="${quote.image}" alt="Drama Scene" onerror="this.style.display='none'">
+                    </div>
+                ` : ''}
+                <div class="drama-info">${quote.drama || ''} ${quote.year ? '(' + quote.year + ')' : ''}</div>
+            `;
+        }
+
+        // 导航
+        function navigate(direction) {
+            currentOffset += direction;
+            render();
+        }
+
+        // 初始化
+        function init() {
+            allQuotes = loadQuotes();
+            console.log('加载了', allQuotes.length, '条台词');
+            render();
+        }
+
+        // 页面加载时初始化
+        init();
+    </script>
+</body>
+</html>
