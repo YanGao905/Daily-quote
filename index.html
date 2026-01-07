@@ -269,7 +269,7 @@ function navigate(direction) {
     lastDirection = direction;
     currentDayOffset += direction;
     updateDisplay(currentDayOffset, direction);
-    setTimeout(() => isAnimating = false, 300);
+    setTimeout(() => isAnimating = false, 400);
 }
 
 // 終了页面动画
@@ -475,17 +475,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (todayQuote && todayQuote.music) {
         console.log('✓ 找到音乐:', todayQuote.music);
         bgMusic.src = todayQuote.music;
-        bgMusic.volume = 0.3;
         bgMusic.loop = true;
         
-        // 尝试自动播放
+        // 尝试自动播放：先静音播放，成功后再设置音量
+        bgMusic.muted = true;
+        bgMusic.volume = 0.3;
+        
         const playPromise = bgMusic.play();
         if (playPromise !== undefined) {
             playPromise.then(() => {
                 console.log('✓ 音乐自动播放成功');
+                // 播放成功后取消静音
+                setTimeout(() => {
+                    bgMusic.muted = false;
+                }, 100);
                 musicBtn.classList.add('playing');
             }).catch(err => {
                 console.log('⚠️ 自动播放被阻止，请点击音乐按钮手动播放');
+                bgMusic.muted = false;
                 musicBtn.classList.remove('playing');
             });
         }
