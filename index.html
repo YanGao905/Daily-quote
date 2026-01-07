@@ -15,6 +15,7 @@
         body { background-color: #393B43 !important; }
     </style>
     <link rel="stylesheet" href="style.css?v=3">
+    <script src="quotes.js"></script>
 </head>
 <body style="background-color: #393B43 !important;">
     <div class="app-wrapper">
@@ -74,22 +75,40 @@ let currentDayOffset = 0;
 let isAnimating = false;
 let lastDirection = 0; // 记录上次翻页的方向：-1向前(过去)，1向后(未来)
 
-// 从localStorage加载数据
+// 从localStorage和quotes.js加载数据（合并两个数据源）
 function loadQuotes() {
+    let allQuotes = [];
+    
+    // 1. 优先从quotes.js加载（如果存在）
+    if (typeof quotes !== 'undefined' && Array.isArray(quotes) && quotes.length > 0) {
+        allQuotes = [...quotes];
+        console.log('✓ 从quotes.js加载:', quotes.length, '条台词');
+    }
+    
+    // 2. 从localStorage加载用户添加的台词
     const savedQuotes = localStorage.getItem('dailyQuotes');
     if (savedQuotes) {
         try {
-            const data = JSON.parse(savedQuotes);
-            if (Array.isArray(data) && data.length > 0) {
-                console.log('✓ 从localStorage加载:', data.length, '条台词');
-                return data;
+            const localData = JSON.parse(savedQuotes);
+            if (Array.isArray(localData) && localData.length > 0) {
+                // 合并数据，localStorage的台词优先（覆盖相同ID）
+                const localIds = new Set(localData.map(q => q.id));
+                allQuotes = allQuotes.filter(q => !localIds.has(q.id));
+                allQuotes = [...allQuotes, ...localData];
+                console.log('✓ 从localStorage加载:', localData.length, '条台词');
             }
         } catch (e) {
             console.error('✗ localStorage数据解析失败:', e);
         }
     }
-    console.warn('⚠️ localStorage中没有数据');
-    return [];
+    
+    if (allQuotes.length === 0) {
+        console.warn('⚠️ 没有可用的台词数据');
+    } else {
+        console.log('✓ 总共加载:', allQuotes.length, '条台词');
+    }
+    
+    return allQuotes;
 }
 
 // 获取所有台词
