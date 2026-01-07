@@ -135,13 +135,21 @@ function getQuoteByOffset(offset) {
     
     // 如果是今天（offset=0），优先返回设置为"今日默认"的台词
     if (offset === 0) {
+        // 首先检查localStorage中的设置（管理页面设置）
         const todayDefaultId = localStorage.getItem('todayDefaultQuote');
         if (todayDefaultId) {
             const defaultQuote = allQuotes.find(q => q.id === parseInt(todayDefaultId));
             if (defaultQuote) {
-                console.log('✓ 使用今日默认台词:', defaultQuote.japanese);
+                console.log('✓ 使用今日默认台词（localStorage）:', defaultQuote.japanese);
                 return defaultQuote;
             }
+        }
+        
+        // 如果localStorage没有设置，检查quotes.js中的isDefault标记
+        const defaultQuote = allQuotes.find(q => q.isDefault === true);
+        if (defaultQuote) {
+            console.log('✓ 使用今日默认台词（quotes.js）:', defaultQuote.japanese);
+            return defaultQuote;
         }
     }
     

@@ -219,7 +219,8 @@ const quotes = [
     "drama": "悠长假期",
     "year": 1996,
     "image": "images/1-2.png",
-    "music": "music/long-vacation.mp3"
+    "music": "music/long-vacation.mp3",
+    "isDefault": true
   },
   {
     "id": 33,
