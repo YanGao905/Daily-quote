@@ -336,11 +336,12 @@ html {
 
 .japanese-quote {
     font-family: 'Hiragino Mincho Pro', 'Yu Mincho', serif;
-    font-size: 24px;
+    font-size: 22px;
     line-height: 1.5;
     color: #212121;
     font-weight: 300;
     max-width: 331px;
+    padding: 0 36px;
 }
 
 .chinese-quote {
@@ -349,6 +350,7 @@ html {
     color: #616161;
     font-weight: 300;
     line-height: normal;
+    padding: 0 36px;
 }
 
 /* Image Section */
