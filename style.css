@@ -61,13 +61,19 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Compact', 'Hiragino Mincho Pro', 'Noto Sans JP', 'Noto Sans SC', sans-serif;
     background-color: #393B43;
-    height: 100vh;
+    min-height: 100vh;
+    min-height: -webkit-fill-available; /* 修复Safari移动端居中问题 */
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     touch-action: pan-y;
     user-select: none;
+}
+
+/* 修复移动端Safari的100vh问题 */
+html {
+    height: -webkit-fill-available;
 }
 
 .app-wrapper {
