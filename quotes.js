@@ -7,7 +7,7 @@ const quotes = [
         chinese: "人生啊，也会有需要放长假的时候",
         drama: "悠长假期",
         year: 1996,
-        image: "images/long-vacation.png",
+        image: "images/1-1.png",
         music: "music/long-vacation.mp3"
     },
     {
@@ -16,7 +16,7 @@ const quotes = [
         chinese: "想见你想见你想见你到颤抖",
         drama: "东京爱情故事",
         year: 1991,
-        image: "images/tokyo-love-story.png"
+        image: "images/2-1.png"
     },
     {
         id: 3,
@@ -24,7 +24,7 @@ const quotes = [
         chinese: "请对我说爱我",
         drama: "请对我说爱我",
         year: 1995,
-        image: "images/aishiteru.png"
+        image: "images/3-1.png"
     },
     {
         id: 4,
@@ -32,7 +32,7 @@ const quotes = [
         chinese: "最重要的是，相信自己",
         drama: "龙樱",
         year: 2005,
-        image: "images/dragon-zakura.png"
+        image: "images/4-1.png"
     },
     {
         id: 5,
@@ -40,7 +40,7 @@ const quotes = [
         chinese: "人靠外表100%",
         drama: "人靠外表100%",
         year: 2017,
-        image: "images/hitowa.png"
+        image: "images/5-1.png"
     },
     {
         id: 6,
@@ -48,7 +48,7 @@ const quotes = [
         chinese: "逃避虽可耻但有用",
         drama: "逃避虽可耻但有用",
         year: 2016,
-        image: "images/nigehaji.png"
+        image: "images/6-1.png"
     },
     {
         id: 7,
@@ -56,7 +56,7 @@ const quotes = [
         chinese: "有喜欢的人",
         drama: "有喜欢的人",
         year: 2016,
-        image: "images/suki.png"
+        image: "images/7-1.png"
     },
     {
         id: 8,
@@ -64,7 +64,7 @@ const quotes = [
         chinese: "你有家可归",
         drama: "你有家可归",
         year: 2018,
-        image: "images/kaeru.png"
+        image: "images/8-1.png"
     },
     {
         id: 9,
@@ -72,7 +72,7 @@ const quotes = [
         chinese: "最完美的离婚",
         drama: "最完美的离婚",
         year: 2013,
-        image: "images/rikon.png"
+        image: "images/9-1.png"
     },
     {
         id: 10,
@@ -80,7 +80,7 @@ const quotes = [
         chinese: "四重奏",
         drama: "四重奏",
         year: 2017,
-        image: "images/quartet.png"
+        image: "images/10-1.png"
     },
     {
         id: 11,
@@ -88,7 +88,7 @@ const quotes = [
         chinese: "认为未来光明的人，才能照亮未来",
         drama: "半泽直树",
         year: 2013,
-        image: "images/hanzawa.png"
+        image: "images/11-1.png"
     },
     {
         id: 12,
@@ -96,7 +96,7 @@ const quotes = [
         chinese: "在一起就感到温暖",
         drama: "温柔时刻",
         year: 2005,
-        image: "images/yasashii.png"
+        image: "images/12-1.png"
     },
     {
         id: 13,
@@ -104,7 +104,7 @@ const quotes = [
         chinese: "在世界中心呼唤爱",
         drama: "在世界中心呼唤爱",
         year: 2004,
-        image: "images/sekachu.png"
+        image: "images/13-1.png"
     },
     {
         id: 14,
@@ -112,7 +112,7 @@ const quotes = [
         chinese: "人生是美丽的",
         drama: "美丽人生",
         year: 2000,
-        image: "images/beautiful-life.png"
+        image: "images/14-1.png"
     },
     {
         id: 15,
@@ -120,7 +120,7 @@ const quotes = [
         chinese: "最重要的东西，眼睛是看不见的",
         drama: "小王子",
         year: 2014,
-        image: "images/prince.png"
+        image: "images/15-1.png"
     },
     {
         id: 16,
@@ -128,7 +128,7 @@ const quotes = [
         chinese: "明天，我要做某人的女友",
         drama: "明天，我要做某人的女友",
         year: 2022,
-        image: "images/ashita.png"
+        image: "images/16-1.png"
     },
     {
         id: 17,
@@ -136,7 +136,7 @@ const quotes = [
         chinese: "恋爱可以持续到天长地久",
         drama: "恋爱可以持续到天长地久",
         year: 2020,
-        image: "images/koitsudu.png"
+        image: "images/17-1.png"
     },
     {
         id: 18,
@@ -144,7 +144,7 @@ const quotes = [
         chinese: "非自然死亡",
         drama: "非自然死亡",
         year: 2018,
-        image: "images/unnatural.png"
+        image: "images/18-1.png"
     },
     {
         id: 19,
@@ -152,7 +152,7 @@ const quotes = [
         chinese: "风平浪静的闲暇",
         drama: "风平浪静的闲暇",
         year: 2019,
-        image: "images/nagi.png"
+        image: "images/19-1.png"
     },
     {
         id: 20,
@@ -160,7 +160,7 @@ const quotes = [
         chinese: "重版出来！",
         drama: "重版出来！",
         year: 2016,
-        image: "images/juhan.png"
+        image: "images/20-1.png"
     },
     {
         id: 21,
@@ -168,7 +168,7 @@ const quotes = [
         chinese: "我的家政夫渚先生",
         drama: "我的家政夫渚先生",
         year: 2020,
-        image: "images/nagisa.png"
+        image: "images/21-1.png"
     },
     {
         id: 22,
@@ -176,7 +176,7 @@ const quotes = [
         chinese: "昨日的美食",
         drama: "昨日的美食",
         year: 2019,
-        image: "images/kinou.png"
+        image: "images/22-1.png"
     },
     {
         id: 23,
@@ -184,7 +184,7 @@ const quotes = [
         chinese: "Legal High",
         drama: "Legal High",
         year: 2012,
-        image: "images/legal-high.png"
+        image: "images/23-1.png"
     },
     {
         id: 24,
@@ -192,7 +192,7 @@ const quotes = [
         chinese: "大豆田永久子与三名前夫",
         drama: "大豆田永久子与三名前夫",
         year: 2021,
-        image: "images/mameda.png"
+        image: "images/24-1.png"
     },
     {
         id: 25,
@@ -200,7 +200,7 @@ const quotes = [
         chinese: "产科医鸿鸟",
         drama: "产科医鸿鸟",
         year: 2015,
-        image: "images/kounodori.png"
+        image: "images/25-1.png"
     },
     {
         id: 26,
@@ -208,7 +208,7 @@ const quotes = [
         chinese: "派遣女医X",
         drama: "派遣女医X",
         year: 2012,
-        image: "images/doctor-x.png"
+        image: "images/26-1.png"
     },
     {
         id: 27,
@@ -216,7 +216,7 @@ const quotes = [
         chinese: "行骗天下JP",
         drama: "行骗天下JP",
         year: 2018,
-        image: "images/confidence.png"
+        image: "images/27-1.png"
     },
     {
         id: 28,
@@ -224,7 +224,7 @@ const quotes = [
         chinese: "MIU404",
         drama: "MIU404",
         year: 2020,
-        image: "images/miu404.png"
+        image: "images/28-1.png"
     },
     {
         id: 29,
@@ -232,7 +232,7 @@ const quotes = [
         chinese: "dele删除人生",
         drama: "dele删除人生",
         year: 2018,
-        image: "images/dele.png"
+        image: "images/29-1.png"
     },
     {
         id: 30,
@@ -240,7 +240,7 @@ const quotes = [
         chinese: "我的话很长",
         drama: "我的话很长",
         year: 2019,
-        image: "images/ore.png"
+        image: "images/30-1.png"
     },
     {
         id: 31,
@@ -248,6 +248,6 @@ const quotes = [
         chinese: "爱的迫降",
         drama: "爱的迫降",
         year: 2019,
-        image: "images/crash-landing.png"
+        image: "images/31-1.png"
     }
 ];
