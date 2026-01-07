@@ -384,7 +384,7 @@ body {
     position: fixed;
     width: 48px;
     height: 48px;
-    display: flex;
+    display: none; /* 隐藏翻页按钮，使用键盘和手势操作 */
     align-items: center;
     justify-content: center;
     color: #616161;

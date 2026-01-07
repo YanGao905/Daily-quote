@@ -543,6 +543,33 @@ document.addEventListener('DOMContentLoaded', () => {
             navigate(1);
         }
     });
+    
+    // 触摸手势支持（手机端）
+    let touchStartY = 0;
+    let touchEndY = 0;
+    const minSwipeDistance = 50; // 最小滑动距离（像素）
+    
+    document.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    
+    document.addEventListener('touchend', (e) => {
+        touchEndY = e.changedTouches[0].clientY;
+        handleSwipe();
+    }, { passive: true });
+    
+    function handleSwipe() {
+        const swipeDistance = touchStartY - touchEndY;
+        
+        // 向上滑动（看到下一天）
+        if (swipeDistance > minSwipeDistance) {
+            navigate(1);
+        }
+        // 向下滑动（看到前一天）
+        else if (swipeDistance < -minSwipeDistance) {
+            navigate(-1);
+        }
+    }
 });
     </script>
 </body>
