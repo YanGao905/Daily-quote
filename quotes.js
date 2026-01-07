@@ -1,5 +1,4 @@
 // 日剧经典台词数据库
-// 每天一句，包含日文、中文翻译、图片、音乐和出处
 const quotes = [
   {
     "id": 4,
@@ -106,14 +105,6 @@ const quotes = [
     "drama": "垫底辣妹",
     "year": 2015,
     "image": "images/4-3.png"
-  },
-  {
-    "id": 17,
-    "japanese": "そばにいるだけで、救われることもある",
-    "chinese": "そばにいるだけで、救われることもある",
-    "drama": "海街日记",
-    "year": 2015,
-    "image": "images/5-1.png"
   },
   {
     "id": 18,
@@ -237,5 +228,13 @@ const quotes = [
     "drama": "我家的事说来话长",
     "year": 2019,
     "image": "images/9-1.png"
+  },
+  {
+    "id": 35,
+    "japanese": "そばにいるだけで、救われることもある",
+    "chinese": "有时候，只是待在身边，就已经被拯救了",
+    "drama": "海街日记",
+    "year": 2015,
+    "image": "images/5-1.png"
   }
 ];
