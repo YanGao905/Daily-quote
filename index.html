@@ -63,15 +63,6 @@
             </svg>
         </div>
     </div>
-    <div id="adminModal" class="admin-modal">
-        <div class="admin-modal-content">
-            <div class="admin-modal-header">
-                <h2>📝 台词管理</h2>
-                <button class="admin-modal-close" id="closeAdminBtn">&times;</button>
-            </div>
-            <div id="adminPanelContainer"></div>
-        </div>
-    </div>
 
     <script>
 // ==================== 核心功能：完全内联 ====================
@@ -508,11 +499,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 绑定导航按钮
     document.getElementById('nav-up').addEventListener('click', () => navigate(-1));
     document.getElementById('nav-down').addEventListener('click', () => navigate(1));
-    
-    // 绑定管理按钮
-    document.getElementById('openAdminBtn').addEventListener('click', () => {
-        window.location.href = 'admin.html';
-    });
     
     // 绑定键盘事件
     document.addEventListener('keydown', (e) => {
