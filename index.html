@@ -307,16 +307,25 @@ function animateEndPage() {
         });
     }, 1100);
     
-    // 4. 逐字显示"明日"（"また"显示完后200ms）
+    // 4. 逐字显示"明日"（"また"显示完后200ms，预先创建占位避免位置移动）
     setTimeout(() => {
         const textText = '明日';
-        textText.split('').forEach((char, index) => {
+        const spans = [];
+        
+        // 先创建所有字符的span占位
+        textText.split('').forEach((char) => {
+            const span = document.createElement('span');
+            span.textContent = char;
+            span.style.opacity = '0';  // 初始隐藏
+            endText.appendChild(span);
+            spans.push(span);
+        });
+        
+        // 逐个显示字符
+        spans.forEach((span, index) => {
             setTimeout(() => {
-                const span = document.createElement('span');
-                span.textContent = char;
                 span.classList.add('animate');
-                span.style.animationDelay = '0s';
-                endText.appendChild(span);
+                span.style.opacity = '';  // 移除inline style，让CSS动画接管
             }, index * 200);
         });
     }, 1900);
@@ -538,32 +547,99 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // 触摸手势支持（手机端）
+    // 触摸手势支持（手机端，跟手拖动）
     let touchStartY = 0;
-    let touchEndY = 0;
-    const minSwipeDistance = 50; // 最小滑动距离（像素）
+    let touchCurrentY = 0;
+    let isDragging = false;
+    const minSwipeDistance = 80;
+    const damping = 0.6;
+    const normalContent = document.getElementById('normalContent');
     
     document.addEventListener('touchstart', (e) => {
+        if (isAnimating) return;
         touchStartY = e.touches[0].clientY;
+        touchCurrentY = touchStartY;
+        isDragging = true;
+        normalContent.style.transition = 'none';
+    }, { passive: true });
+    
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging || isAnimating) return;
+        touchCurrentY = e.touches[0].clientY;
+        const deltaY = touchCurrentY - touchStartY;
+        const translateY = deltaY * damping;
+        normalContent.style.transform = `translate3d(0, ${translateY}px, 0)`;
     }, { passive: true });
     
     document.addEventListener('touchend', (e) => {
-        touchEndY = e.changedTouches[0].clientY;
-        handleSwipe();
-    }, { passive: true });
-    
-    function handleSwipe() {
-        const swipeDistance = touchStartY - touchEndY;
+        if (!isDragging) return;
+        isDragging = false;
         
-        // 向上滑动（看到下一天）
-        if (swipeDistance > minSwipeDistance) {
-            navigate(1);
+        const swipeDistance = touchCurrentY - touchStartY;
+        normalContent.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        
+        if (Math.abs(swipeDistance) > minSwipeDistance) {
+            if (swipeDistance > 0) {
+                normalContent.style.transform = 'translate3d(0, 100vh, 0)';
+                setTimeout(() => {
+                    navigate(-1);
+                    setTimeout(() => {
+                        normalContent.style.transition = 'none';
+                        normalContent.style.transform = '';
+                        setTimeout(() => {
+                            normalContent.style.transition = '';
+                        }, 50);
+                    }, 50);
+                }, 200);
+            } else {
+                normalContent.style.transform = 'translate3d(0, -100vh, 0)';
+                setTimeout(() => {
+                    navigate(1);
+                    setTimeout(() => {
+                        normalContent.style.transition = 'none';
+                        normalContent.style.transform = '';
+                        setTimeout(() => {
+                            normalContent.style.transition = '';
+                        }, 50);
+                    }, 50);
+                }, 200);
+            }
+        } else {
+            normalContent.style.transform = 'translate3d(0, 0, 0)';
         }
-        // 向下滑动（看到前一天）
-        else if (swipeDistance < -minSwipeDistance) {
-            navigate(-1);
-        }
-    }
+    })
+
+    // 触控板/鼠标滚轮支持（PC端，针对Mac触控板优化）
+    let wheelTimeout;
+    let wheelDelta = 0;
+    const wheelThreshold = 50; // 降低阈值，适配Mac触控板
+    
+    document.addEventListener('wheel', (e) => {
+        if (isAnimating) return;
+        
+        // 阻止默认滚动行为
+        e.preventDefault();
+        
+        // 累积垂直滚动距离
+        wheelDelta += e.deltaY;
+        
+        // 清除之前的超时
+        clearTimeout(wheelTimeout);
+        
+        // 设置新的超时，降低延迟提升响应速度
+        wheelTimeout = setTimeout(() => {
+            if (Math.abs(wheelDelta) >= wheelThreshold) {
+                if (wheelDelta > 0) {
+                    // 向下滚动：下一天
+                    navigate(1);
+                } else {
+                    // 向上滚动：上一天
+                    navigate(-1);
+                }
+            }
+            wheelDelta = 0; // 重置累积值
+        }, 60); // 降低延迟从150ms到60ms，提升响应速度
+    }, { passive: false }); // 改为false以便preventDefault
 });
     </script>
 </body>

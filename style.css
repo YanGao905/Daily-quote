@@ -181,6 +181,17 @@ html {
     margin: 0 auto;
 }
 
+/* 正常内容容器 - 启用硬件加速 */
+#normalContent {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+
 /* 终了页面样式 */
 .end-content {
     display: none;
@@ -257,6 +268,7 @@ html {
     font-weight: 300;
     text-align: right;
     letter-spacing: 3.2px;
+    width: 169px; /* 固定宽度，防止逐字显示时位置移动 */
 }
 
 .end-text span {
@@ -325,7 +337,6 @@ html {
     left: 0;
     right: 0;
     top: 124px;
-    width: 400px;
     margin: 0 auto;
     padding: 0 36px;
     display: flex;
@@ -341,7 +352,7 @@ html {
     line-height: 1.5;
     color: #212121;
     font-weight: 300;
-    max-width: 328px;
+    max-width: 100%;
 }
 
 .chinese-quote {
@@ -350,7 +361,7 @@ html {
     color: #616161;
     font-weight: 300;
     line-height: normal;
-    max-width: 328px;
+    max-width: 100%;
 }
 
 /* Image Section */
@@ -358,9 +369,9 @@ html {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 40px;
-    width: 300px;
-    height: 300px;
+    bottom: 50px;
+    width: 260px;
+    height: 260px;
     margin: 0 auto;
     display: flex;
     justify-content: center;
@@ -368,8 +379,8 @@ html {
 }
 
 .image-section img {
-    width: 300px;
-    height: 300px;
+    width: 260px;
+    height: 260px;
     object-fit: contain;
     object-position: bottom;
 }
@@ -379,12 +390,16 @@ html {
     position: absolute;
     left: 0;
     right: 0;
-    top: 560px;
+    bottom: 16px;
     font-family: 'SF Compact', 'Noto Sans JP', sans-serif;
     font-size: 12px;
     font-weight: 350;
     color: #212121;
-    text-align: center;
+    text-align: center; /* 在整个卡片中横向居中 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px; /* 与music icon高度一致 */
 }
 
 /* Navigation Arrows */
@@ -729,5 +744,38 @@ html {
     to {
         transform: translateY(0);
         opacity: 1;
+    }
+}
+
+/* ============================================
+   移动端优化 - 为真实手机屏幕提供更多文字空间
+   ============================================ */
+@media screen and (max-width: 480px) {
+    /* 图片下移并放大，减少留白 */
+    .image-section {
+        bottom: 80px;
+        width: 280px;  /* 从240px增加到280px */
+        height: 280px;
+    }
+    
+    .image-section img {
+        width: 280px;
+        height: 280px;
+    }
+    
+    /* 文字区域优化，减少左右padding */
+    .quote-section {
+        top: 100px;
+        padding: 0 24px; /* 从32px减少到24px，两边留白更少 */
+    }
+    
+    /* 字号调整 */
+    .japanese-quote {
+        font-size: 24px; /* 从22px增加到24px */
+        line-height: 1.4;
+    }
+    
+    .chinese-quote {
+        font-size: 14px;
     }
 }
