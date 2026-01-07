@@ -2,7 +2,7 @@
   "name": "Daily Quote - 每日一句日剧台词",
   "short_name": "Daily Quote",
   "description": "每天一句日剧经典台词，中日文对照",
-  "start_url": "/index.html",
+  "start_url": "/index.html?v=2",
   "display": "standalone",
   "background_color": "#1a1a1a",
   "theme_color": "#f6f8ea",
