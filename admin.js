@@ -17,12 +17,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 加载数据
 function loadQuotes() {
+    let allQuotes = [];
+    
+    // 1. 从 quotes.js 加载默认数据
+    if (typeof quotes !== 'undefined' && Array.isArray(quotes)) {
+        allQuotes = [...quotes];
+        console.log('✓ 从 quotes.js 加载:', quotes.length, '条台词');
+    }
+    
+    // 2. 从 localStorage 加载用户添加的数据
     const savedQuotes = localStorage.getItem('dailyQuotes');
     if (savedQuotes) {
-        adminQuotes = JSON.parse(savedQuotes);
-    } else {
-        // 如果没有保存的数据，使用默认示例
-        adminQuotes = [
+        try {
+            const localData = JSON.parse(savedQuotes);
+            if (Array.isArray(localData) && localData.length > 0) {
+                // 合并数据，localStorage的台词优先（覆盖相同ID）
+                const localIds = new Set(localData.map(q => q.id));
+                allQuotes = allQuotes.filter(q => !localIds.has(q.id));
+                allQuotes = [...allQuotes, ...localData];
+                console.log('✓ 从 localStorage 加载:', localData.length, '条台词');
+            }
+        } catch (e) {
+            console.error('✗ localStorage数据解析失败:', e);
+        }
+    }
+    
+    if (allQuotes.length === 0) {
+        // 如果没有任何数据，使用默认示例
+        allQuotes = [
             {
                 id: 1,
                 japanese: "人生にはね、長い休みが必要な時もあるのよ",
@@ -32,8 +54,10 @@ function loadQuotes() {
                 image: "images/default.png"
             }
         ];
-        saveQuotes();
     }
+    
+    adminQuotes = allQuotes;
+    console.log('✓ 总共加载:', adminQuotes.length, '条台词');
 }
 
 // 保存数据
@@ -80,6 +104,27 @@ function setupEventListeners() {
     
     // 清空表单
     document.getElementById('clear-btn').addEventListener('click', clearForm);
+    
+    // 重置首次体验
+    const resetFirstTimeBtn = document.getElementById('reset-first-time-btn');
+    if (resetFirstTimeBtn) {
+        resetFirstTimeBtn.addEventListener('click', () => {
+            localStorage.removeItem('dateQuoteBindings');
+            localStorage.removeItem('firstUseDate');
+            alert('✅ 已清除所有日期绑定和基准日期！\n\n返回主页面将重新开始前7天的精选体验。');
+        });
+    }
+    
+    // 重新加载默认数据
+    const reloadDefaultBtn = document.getElementById('reload-default-btn');
+    if (reloadDefaultBtn) {
+        reloadDefaultBtn.addEventListener('click', () => {
+            if (confirm('确定要清除localStorage并重新加载quotes.js中的默认数据吗？\n\n用户添加的数据将被清除！')) {
+                localStorage.removeItem('dailyQuotes');
+                location.reload();
+            }
+        });
+    }
     
     // 图片上传预览
     document.getElementById('image-upload').addEventListener('change', handleImageUpload);
@@ -324,15 +369,9 @@ function renderQuotesList() {
         return;
     }
     
-    const todayDefaultId = getTodayDefaultId();
-    
     container.innerHTML = adminQuotes.map(quote => {
-        const isDefault = quote.id === todayDefaultId;
         return `
-        <div class="quote-card ${isDefault ? 'is-default' : ''}" data-id="${quote.id}">
-            <button class="star-btn ${isDefault ? 'active' : ''}" onclick="setTodayDefault(${quote.id})" title="${isDefault ? '当前默认' : '设为今日默认'}">
-                ${isDefault ? '⭐' : '☆'}
-            </button>
+        <div class="quote-card" data-id="${quote.id}">
             <img src="${quote.image}" alt="${quote.drama}" class="quote-card-image" onerror="if(this.src!=='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27324%27 height=%27180%27%3E%3Crect fill=%27%23e8e8e8%27 width=%27324%27 height=%27180%27/%3E%3Ctext x=%27162%27 y=%2795%27 font-size=%2718%27 text-anchor=%27middle%27 fill=%27%23999%27%3E暂无图片%3C/text%3E%3C/svg%3E')this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27324%27 height=%27180%27%3E%3Crect fill=%27%23e8e8e8%27 width=%27324%27 height=%27180%27/%3E%3Ctext x=%27162%27 y=%2795%27 font-size=%2718%27 text-anchor=%27middle%27 fill=%27%23999%27%3E暂无图片%3C/text%3E%3C/svg%3E'">
             <div class="quote-card-japanese">${quote.japanese}</div>
             <div class="quote-card-chinese">${quote.chinese}</div>
@@ -346,32 +385,9 @@ function renderQuotesList() {
     }).join('');
 }
 
-// 设置今日默认台词
-function setTodayDefault(id) {
-    try {
-        localStorage.setItem('todayDefaultQuote', id.toString());
-        alert('已设置为今日默认台词！');
-        renderQuotesList();
-    } catch (error) {
-        console.error('设置默认台词失败:', error);
-        alert('设置失败: ' + error.message);
-    }
-}
-
-// 获取今日默认台词ID
-function getTodayDefaultId() {
-    const id = localStorage.getItem('todayDefaultQuote');
-    return id ? parseInt(id) : null;
-}
-
 // 删除单条台词
 function deleteQuote(id) {
     if (!confirm('确定要删除这条台词吗？')) return;
-    
-    // 如果删除的是默认台词，清除默认设置
-    if (id === getTodayDefaultId()) {
-        localStorage.removeItem('todayDefaultQuote');
-    }
     
     quotes = quotes.filter(q => q.id !== id);
     saveQuotes();

@@ -33,6 +33,14 @@
                 <div class="end-text" id="endText"></div>
             </div>
             
+            <!-- 历史结束页面（往回翻7天后显示） -->
+            <div class="history-end-content" id="historyEndContent" style="display: none;">
+                <div class="history-end-quote-section">
+                    <div class="history-end-japanese"></div>
+                    <div class="history-end-chinese"></div>
+                </div>
+            </div>
+            
             <!-- 正常台词页面 -->
             <div id="normalContent">
                 <div class="date-section">
@@ -133,58 +141,108 @@ function getQuoteByOffset(offset) {
         return null;
     }
     
-    // 如果是今天（offset=0），优先返回设置为"今日默认"的台词
-    if (offset === 0) {
-        // 首先检查localStorage中的设置（管理页面设置）
-        const todayDefaultId = localStorage.getItem('todayDefaultQuote');
-        if (todayDefaultId) {
-            const defaultQuote = allQuotes.find(q => q.id === parseInt(todayDefaultId));
-            if (defaultQuote) {
-                console.log('✓ 使用今日默认台词（localStorage）:', defaultQuote.japanese);
-                return defaultQuote;
-            }
+    // 获取目标日期
+    const targetDate = getDateByOffset(offset);
+    const dateKey = targetDate.getFullYear() + '-' + 
+                   String(targetDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                   String(targetDate.getDate()).padStart(2, '0');
+    
+    // 从localStorage读取日期绑定记录
+    let dateBindings = localStorage.getItem('dateQuoteBindings');
+    dateBindings = dateBindings ? JSON.parse(dateBindings) : {};
+    
+    // 如果这个日期已经有绑定的台词，直接返回
+    if (dateBindings[dateKey]) {
+        const boundId = dateBindings[dateKey];
+        const boundQuote = allQuotes.find(q => q.id === boundId);
+        if (boundQuote) {
+            console.log(`✓ 使用已绑定的台词 (${dateKey}):`, boundQuote.japanese);
+            return boundQuote;
         }
+    }
+    
+    // 这个日期是第一次访问，需要选择台词并绑定
+    console.log(`📅 首次访问日期: ${dateKey}，选择台词...`);
+    
+    // 获取或初始化首次使用基准日期
+    let firstUseDate = localStorage.getItem('firstUseDate');
+    if (!firstUseDate) {
+        // 记录今天为基准日期
+        const today = new Date();
+        firstUseDate = today.getFullYear() + '-' + 
+                      String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                      String(today.getDate()).padStart(2, '0');
+        localStorage.setItem('firstUseDate', firstUseDate);
+        console.log('📍 设置基准日期:', firstUseDate);
+    }
+    
+    // 计算当前日期与基准日期的天数差
+    const firstDate = new Date(firstUseDate);
+    const daysDiff = Math.floor((targetDate - firstDate) / (1000 * 60 * 60 * 24));
+    console.log(`📍 基准日期: ${firstUseDate}, 当前: ${dateKey}, 天数差: ${daysDiff}`);
+    
+    let selectedQuote;
+    
+    // 前7天（基准日及往回6天）使用固定的精选内容
+    if (daysDiff >= -6 && daysDiff <= 0 && typeof firstTimeQuoteIds !== 'undefined') {
+        const arrayIndex = Math.abs(daysDiff);  // daysDiff=0→index 0, daysDiff=-1→index 1
+        const selectedId = firstTimeQuoteIds[arrayIndex];
+        selectedQuote = allQuotes.find(q => q.id === selectedId);
+        if (selectedQuote) {
+            console.log(`✨ 使用精选内容: daysDiff=${daysDiff}, arrayIndex=${arrayIndex}, id=${selectedId}, ${selectedQuote.drama}`);
+        } else {
+            console.warn(`⚠️ 未找到ID为${selectedId}的台词`);
+        }
+    }
+    
+    // 如果不是前7天，或者前7天没找到，就自动选择
+    if (!selectedQuote) {
+        // 检查前一天绑定的台词，避免同一部剧
+        const yesterday = new Date(targetDate);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayKey = yesterday.getFullYear() + '-' + 
+                            String(yesterday.getMonth() + 1).padStart(2, '0') + '-' + 
+                            String(yesterday.getDate()).padStart(2, '0');
         
-        // 如果localStorage没有设置，检查quotes.js中的isDefault标记
-        const defaultQuote = allQuotes.find(q => q.isDefault === true);
-        if (defaultQuote) {
-            console.log('✓ 使用今日默认台词（quotes.js）:', defaultQuote.japanese);
-            return defaultQuote;
+        const yesterdayId = dateBindings[yesterdayKey];
+        
+        if (yesterdayId) {
+            // 前一天有记录，找一个不同剧的台词
+            const yesterdayQuote = allQuotes.find(q => q.id === yesterdayId);
+            const differentDramaQuotes = allQuotes.filter(q => q.drama !== yesterdayQuote?.drama);
+            
+            if (differentDramaQuotes.length > 0) {
+                const dateHash = parseInt(dateKey.replace(/-/g, ''));
+                const index = dateHash % differentDramaQuotes.length;
+                selectedQuote = differentDramaQuotes[index];
+                console.log(`🔄 避免重复《${yesterdayQuote?.drama}》，选择《${selectedQuote.drama}》`);
+            } else {
+                const dateHash = parseInt(dateKey.replace(/-/g, ''));
+                const index = dateHash % allQuotes.length;
+                selectedQuote = allQuotes[index];
+            }
+        } else {
+            // 前一天没有记录，基于日期哈希选择
+            const dateHash = parseInt(dateKey.replace(/-/g, ''));
+            const index = dateHash % allQuotes.length;
+            selectedQuote = allQuotes[index];
+            console.log(`✨ 自动选择台词:`, selectedQuote.japanese);
         }
     }
     
-    // 其他日期：使用打乱算法，确保连续页面不是同一部剧
-    // 创建一个基于offset的伪随机序列
-    const shuffleIndex = (offset) => {
-        // 使用简单的哈希函数打乱顺序
-        let hash = Math.abs(offset * 2654435761) % allQuotes.length;
-        return hash;
-    };
+    // 绑定并保存
+    dateBindings[dateKey] = selectedQuote.id;
+    localStorage.setItem('dateQuoteBindings', JSON.stringify(dateBindings));
+    console.log(`💾 已保存绑定: ${dateKey} → ID ${selectedQuote.id} ${selectedQuote.drama}`);
     
-    let index = shuffleIndex(offset);
-    const currentQuote = allQuotes[index];
-    
-    // 检查前一个和后一个offset对应的台词，避免连续同一部剧
-    const prevOffset = offset - 1;
-    const prevIndex = (prevOffset === 0) ? 
-        allQuotes.findIndex(q => q.id === parseInt(localStorage.getItem('todayDefaultQuote') || '-1')) :
-        shuffleIndex(prevOffset);
-    
-    if (prevIndex >= 0 && prevIndex < allQuotes.length) {
-        const prevQuote = allQuotes[prevIndex];
-        if (prevQuote && currentQuote.drama === prevQuote.drama && allQuotes.length > 1) {
-            // 如果和前一个是同一部剧，跳到下一个
-            index = (index + 1) % allQuotes.length;
-        }
-    }
-    
-    return allQuotes[index];
+    return selectedQuote;
 }
 
 // 更新UI显示
 function updateDisplay(offset = 0, direction = 0) {
     const container = document.getElementById('container');
     const endContent = document.getElementById('endContent');
+    const historyEndContent = document.getElementById('historyEndContent');
     const normalContent = document.getElementById('normalContent');
     const japaneseQuote = document.getElementById('japanese-quote');
     const chineseQuote = document.getElementById('chinese-quote');
@@ -193,6 +251,7 @@ function updateDisplay(offset = 0, direction = 0) {
     // 如果是未来日期（offset > 0），显示终了页面
     if (offset > 0) {
         endContent.style.display = 'flex';
+        historyEndContent.style.display = 'none';
         normalContent.style.display = 'none';
         
         // 启动終了页面动画
@@ -200,8 +259,20 @@ function updateDisplay(offset = 0, direction = 0) {
         return;
     }
     
+    // 如果往回翻超过7天（offset <= -7），显示历史结束页面
+    if (offset <= -7) {
+        endContent.style.display = 'none';
+        historyEndContent.style.display = 'flex';
+        normalContent.style.display = 'none';
+        
+        // 触发历史结束页面动画
+        animateHistoryEndPage();
+        return;
+    }
+    
     // 显示正常内容
     endContent.style.display = 'none';
+    historyEndContent.style.display = 'none';
     normalContent.style.display = 'block';
     
     // 移除之前的动画类
@@ -263,6 +334,33 @@ function updateDisplay(offset = 0, direction = 0) {
 // 导航功能
 function navigate(direction) {
     if (isAnimating) return;
+    
+    // 如果当前在历史结束页面（offset <= -7）
+    if (currentDayOffset <= -7) {
+        // 从历史结束页面只能往未来翻（回到第7天）
+        if (direction === 1) {
+            isAnimating = true;
+            currentDayOffset = -6;
+            updateDisplay(currentDayOffset, direction);
+            setTimeout(() => isAnimating = false, 400);
+        }
+        // 不允许继续往过去翻
+        return;
+    }
+    
+    // 如果当前在未来结束页面（offset > 0）
+    if (currentDayOffset > 0) {
+        // 从未来结束页面只能往过去翻（回到今天）
+        if (direction === -1) {
+            isAnimating = true;
+            currentDayOffset = 0;
+            updateDisplay(currentDayOffset, direction);
+            setTimeout(() => isAnimating = false, 400);
+        }
+        // 不允许继续往未来翻
+        return;
+    }
+    
     isAnimating = true;
     lastDirection = direction;
     currentDayOffset += direction;
@@ -307,7 +405,7 @@ function animateEndPage() {
         });
     }, 1100);
     
-    // 4. 逐字显示"明日"（"また"显示完后200ms，预先创建占位避免位置移动）
+    // 4. 逐字显示"明日"（"また"显示完后200ms）
     setTimeout(() => {
         const textText = '明日';
         const spans = [];
@@ -316,7 +414,7 @@ function animateEndPage() {
         textText.split('').forEach((char) => {
             const span = document.createElement('span');
             span.textContent = char;
-            span.style.opacity = '0';  // 初始隐藏
+            span.style.opacity = '0';
             endText.appendChild(span);
             spans.push(span);
         });
@@ -325,10 +423,87 @@ function animateEndPage() {
         spans.forEach((span, index) => {
             setTimeout(() => {
                 span.classList.add('animate');
-                span.style.opacity = '';  // 移除inline style，让CSS动画接管
+                span.style.opacity = '';
             }, index * 200);
         });
     }, 1900);
+}
+
+// 历史结束页面动画
+function animateHistoryEndPage() {
+    const jpContainer = document.querySelector('.history-end-japanese');
+    const cnContainer = document.querySelector('.history-end-chinese');
+    
+    // 日文文本（每行）
+    const jpTexts = [
+        'ここまで来たあなたに、',
+        'ありがとう。',
+        '少しでも、軽くなっていたら',
+        'いい。'
+    ];
+    
+    // 中文文本（每行）
+    const cnTexts = [
+        '谢谢你走到这里',
+        '希望此刻，能让你轻松一点',
+        '我们明天见'
+    ];
+    
+    // 清空容器
+    jpContainer.innerHTML = '';
+    cnContainer.innerHTML = '';
+    
+    let delay = 0;
+    const charDelay = 80; // 每个字的延迟
+    const lineGap = 150; // 行与行之间的额外间隔
+    
+    // 逐字显示日文
+    jpTexts.forEach((text, lineIndex) => {
+        const lineDiv = document.createElement('div');
+        lineDiv.className = 'history-jp-line';
+        lineDiv.style.opacity = '1'; // 行本身始终可见
+        jpContainer.appendChild(lineDiv);
+        
+        // 将每个字符包装在span中
+        text.split('').forEach((char, charIndex) => {
+            const span = document.createElement('span');
+            span.textContent = char;
+            span.style.opacity = '0';
+            lineDiv.appendChild(span);
+            
+            // 设置延迟显示
+            setTimeout(() => {
+                span.style.transition = 'opacity 0.3s ease';
+                span.style.opacity = '1';
+            }, delay + charIndex * charDelay);
+        });
+        
+        delay += text.length * charDelay + lineGap;
+    });
+    
+    // 在日文显示完后，逐字显示中文
+    delay += 200; // 日文和中文之间的间隔
+    
+    cnTexts.forEach((text, lineIndex) => {
+        const lineDiv = document.createElement('div');
+        lineDiv.className = 'history-cn-line';
+        lineDiv.style.opacity = '1';
+        cnContainer.appendChild(lineDiv);
+        
+        text.split('').forEach((char, charIndex) => {
+            const span = document.createElement('span');
+            span.textContent = char;
+            span.style.opacity = '0';
+            lineDiv.appendChild(span);
+            
+            setTimeout(() => {
+                span.style.transition = 'opacity 0.3s ease';
+                span.style.opacity = '1';
+            }, delay + charIndex * charDelay);
+        });
+        
+        delay += text.length * charDelay + lineGap;
+    });
 }
 
 // ==================== 音乐播放器 ====================
@@ -466,12 +641,12 @@ class GlobalMusicPlayer {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
-    // 初始化音乐播放器
-    const globalMusicPlayer = new GlobalMusicPlayer();
+    // 初始化音乐播放器（禁用跨页面同步，避免状态冲突）
+    // const globalMusicPlayer = new GlobalMusicPlayer();
     const bgMusic = document.getElementById('bgMusic');
     const musicBtn = document.getElementById('musicBtn');
     
-    globalMusicPlayer.setAudio(bgMusic);
+    // globalMusicPlayer.setAudio(bgMusic);
     
     // 显示今天的台词
     updateDisplay(0);
@@ -518,18 +693,23 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 音乐按钮点击事件：切换播放/暂停
     musicBtn.addEventListener('click', () => {
-        console.log('音乐按钮被点击，当前状态:', bgMusic.paused ? '暂停' : '播放中');
-        console.log('音乐源:', bgMusic.src);
+        console.log('🎵 音乐按钮被点击');
+        console.log('  - paused:', bgMusic.paused);
+        console.log('  - currentTime:', bgMusic.currentTime);
+        console.log('  - src:', bgMusic.src);
+        console.log('  - readyState:', bgMusic.readyState);
         
         if (bgMusic.paused) {
+            console.log('  → 执行播放');
             bgMusic.play().then(() => {
-                console.log('✓ 播放成功');
+                console.log('  ✓ 播放成功，paused=', bgMusic.paused);
             }).catch(err => {
-                console.error('✗ 播放失败:', err);
+                console.error('  ✗ 播放失败:', err);
             });
         } else {
+            console.log('  → 执行暂停');
             bgMusic.pause();
-            console.log('已暂停');
+            console.log('  ✓ 暂停完成，paused=', bgMusic.paused);
         }
     });
     
@@ -568,7 +748,13 @@ document.addEventListener('DOMContentLoaded', () => {
         touchCurrentY = e.touches[0].clientY;
         const deltaY = touchCurrentY - touchStartY;
         const translateY = deltaY * damping;
+        
+        // 根据拖动距离计算透明度 (0-1)
+        const dragProgress = Math.min(Math.abs(deltaY) / 300, 1); // 拖动300px达到完全透明
+        const opacity = 1 - dragProgress * 0.7; // 最多降到30%透明度
+        
         normalContent.style.transform = `translate3d(0, ${translateY}px, 0)`;
+        normalContent.style.opacity = opacity;
     }, { passive: true });
     
     document.addEventListener('touchend', (e) => {
@@ -576,16 +762,18 @@ document.addEventListener('DOMContentLoaded', () => {
         isDragging = false;
         
         const swipeDistance = touchCurrentY - touchStartY;
-        normalContent.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        normalContent.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease-out';
         
         if (Math.abs(swipeDistance) > minSwipeDistance) {
             if (swipeDistance > 0) {
                 normalContent.style.transform = 'translate3d(0, 100vh, 0)';
+                normalContent.style.opacity = '0';
                 setTimeout(() => {
                     navigate(-1);
                     setTimeout(() => {
                         normalContent.style.transition = 'none';
                         normalContent.style.transform = '';
+                        normalContent.style.opacity = '1';
                         setTimeout(() => {
                             normalContent.style.transition = '';
                         }, 50);
@@ -593,11 +781,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 200);
             } else {
                 normalContent.style.transform = 'translate3d(0, -100vh, 0)';
+                normalContent.style.opacity = '0';
                 setTimeout(() => {
                     navigate(1);
                     setTimeout(() => {
                         normalContent.style.transition = 'none';
                         normalContent.style.transform = '';
+                        normalContent.style.opacity = '1';
                         setTimeout(() => {
                             normalContent.style.transition = '';
                         }, 50);
@@ -606,6 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             normalContent.style.transform = 'translate3d(0, 0, 0)';
+            normalContent.style.opacity = '1';
         }
     })
 

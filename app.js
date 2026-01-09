@@ -461,13 +461,19 @@ document.addEventListener('DOMContentLoaded', function() {
 function goToPreviousDay() {
     if (isAnimating) return;
     
-    // 如果在终了页面，翻回今天
+    // 如果在终了页面，翻回第7天
     if (document.querySelector('.container').classList.contains('end-page')) {
         showNormalPage();
-        currentDayOffset = 0;
+        currentDayOffset = -6; // 回到第7天（今天是0，往前数6天）
         setTimeout(() => {
             updatePage('up'); // 从终了返回，从下往上
         }, 300);
+        return;
+    }
+    
+    // 如果已经到了第7天（offset = -6），继续往回翻显示结束页面
+    if (currentDayOffset === -6) {
+        showEndPage();
         return;
     }
     
