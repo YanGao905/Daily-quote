@@ -301,7 +301,7 @@ const quotes = [
   {
     "id": 70,
     "japanese": "普通って、誰が決めるんですか",
-    "chinese": ""普通"是谁决定的",
+    "chinese": "\"普通\"是谁决定的",
     "drama": "勿言推理",
     "year": 2022,
     "image": "images/12-2.png",
@@ -490,7 +490,7 @@ const quotes = [
   {
     "id": 100,
     "japanese": "しばしお暇いただきます",
-    "chinese": "我先请个"暂时的假"",
+    "chinese": "我先请个\"暂时的假\"",
     "drama": "凪的新生活",
     "year": 2019,
     "image": "images/18-1.png",
@@ -526,7 +526,7 @@ const quotes = [
   {
     "id": 105,
     "japanese": "人生に失敗はあったって、失敗した人生なんてない",
-    "chinese": "人生会失败，但不存在"失败的人生"",
+    "chinese": "人生会失败，但不存在\"失败的人生\"",
     "drama": "大豆田永久子和三名前夫",
     "year": 2021,
     "image": "images/15-9.png",
