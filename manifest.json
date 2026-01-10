@@ -1,12 +1,13 @@
 {
   "name": "Daily Quote - 每日一句日剧台词",
   "short_name": "Daily Quote",
-  "description": "每天一句日剧经典台词，中日文对照",
-  "start_url": "/index.html?v=2",
+  "description": "每天一句日剧经典台词，中日文对照，治愈你的每一天",
+  "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#1a1a1a",
+  "background_color": "#f6f8ea",
   "theme_color": "#f6f8ea",
   "orientation": "portrait",
+  "scope": "/",
   "icons": [
     {
       "src": "icons/icon-44.png",
@@ -42,5 +43,6 @@
     }
   ],
   "categories": ["entertainment", "lifestyle"],
-  "lang": "zh-CN"
+  "lang": "zh-CN",
+  "screenshots": []
 }
