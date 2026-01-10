@@ -832,6 +832,10 @@ html {
     }
     
     .chinese-quote {
+        font-family: 'Source Han Serif TC', 'Noto Serif TC', serif;
+        font-weight: 300;
         font-size: 14px;
+        font-feature-settings: "locl" 1;
+        text-rendering: optimizeLegibility;
     }
 }
