@@ -245,13 +245,13 @@ html {
 }
 
 .end-chinese {
-    font-family: 'SF Compact', 'Noto Sans SC', 'Noto Sans JP', sans-serif;
+    font-family: 'Source Han Serif TC', 'Noto Serif TC', serif;
+    font-weight: 300;
     font-size: 16px;
     line-height: 24px;
     color: #616161;
     text-align: center;
     margin-top: 12px;
-    font-weight: 300;
     font-variation-settings: 'wght' 300, 'GRAD' 400;
     width: 400px;
     opacity: 0;
@@ -338,12 +338,12 @@ html {
 }
 
 .history-end-chinese {
-    font-family: 'SF Compact', 'Noto Sans SC', 'Noto Sans JP', sans-serif;
+    font-family: 'Source Han Serif TC', 'Noto Serif TC', serif;
+    font-weight: 300;
     font-size: 16px;
     line-height: 24px;
     color: #616161;
     text-align: center;
-    font-weight: 300;
     font-variation-settings: 'wght' 300, 'GRAD' 400;
     width: 100%;
 }
@@ -410,12 +410,14 @@ html {
 }
 
 .chinese-quote {
-    font-family: 'SF Compact', 'Noto Sans SC', 'Noto Sans JP', sans-serif;
+    font-family: 'Source Han Serif TC', 'Noto Serif TC', serif;
+    font-weight: 300;
     font-size: 14px;
     color: #616161;
-    font-weight: 300;
     line-height: normal;
     max-width: 100%;
+    font-feature-settings: "locl" 1;
+    text-rendering: optimizeLegibility;
 }
 
 /* Image Section */
@@ -445,9 +447,9 @@ html {
     left: 0;
     right: 0;
     bottom: 16px;
-    font-family: 'SF Compact', 'Noto Sans JP', sans-serif;
+    font-family: 'Source Han Serif TC', 'Noto Serif TC', serif;
     font-size: 12px;
-    font-weight: 350;
+    font-weight: 300;
     color: #212121;
     text-align: center; /* 在整个卡片中横向居中 */
     display: flex;

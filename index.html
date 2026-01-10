@@ -73,6 +73,13 @@ let currentDayOffset = 0;
 let isAnimating = false;
 let lastDirection = 0; // 记录上次翻页的方向：-1向前(过去)，1向后(未来)
 
+// 开发者模式：检查URL参数或localStorage
+const urlParams = new URLSearchParams(window.location.search);
+const isDevMode = urlParams.get('dev') === 'true' || localStorage.getItem('devMode') === 'true';
+if (isDevMode) {
+    console.log('🔓 开发者模式已启用，无浏览限制');
+}
+
 // 从localStorage和quotes.js加载数据（合并两个数据源）
 function loadQuotes() {
     let allQuotes = [];
@@ -259,8 +266,8 @@ function updateDisplay(offset = 0, direction = 0) {
         return;
     }
     
-    // 如果往回翻超过7天（offset <= -7），显示历史结束页面
-    if (offset <= -7) {
+    // 如果往回翻超过7天（offset <= -7），显示历史结束页面（开发者模式跳过）
+    if (offset <= -7 && !isDevMode) {
         endContent.style.display = 'none';
         historyEndContent.style.display = 'flex';
         normalContent.style.display = 'none';
@@ -335,8 +342,8 @@ function updateDisplay(offset = 0, direction = 0) {
 function navigate(direction) {
     if (isAnimating) return;
     
-    // 如果当前在历史结束页面（offset <= -7）
-    if (currentDayOffset <= -7) {
+    // 如果当前在历史结束页面（offset <= -7），且非开发者模式
+    if (currentDayOffset <= -7 && !isDevMode) {
         // 从历史结束页面只能往未来翻（回到第7天）
         if (direction === 1) {
             isAnimating = true;

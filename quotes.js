@@ -1,6 +1,15 @@
 // 日剧经典台词数据库
 const quotes = [
   {
+    "id": 36,
+    "japanese": "ここに来れば、誰かがいる",
+    "chinese": "只要来这里，就一定有人在",
+    "drama": "深夜食堂",
+    "year": 2009,
+    "image": "images/2-1.png",
+    "music": "music/midnight-diner.mp3"
+  },
+  {
     "id": 32,
     "japanese": "人生には、長い休みが必要な時もあるのよ",
     "chinese": "人生啊，也会有需要放长假的时候",
@@ -9,15 +18,6 @@ const quotes = [
     "image": "images/1-2.png",
     "music": "music/long-vacation.mp3",
     "isDefault": true
-  },
-  {
-    "id": 36,
-    "japanese": "ここに来れば、誰かがいる",
-    "chinese": "只要来这里，就一定有人在",
-    "drama": "深夜食堂",
-    "year": 2009,
-    "image": "images/2-1.png",
-    "music": "music/midnight-diner.mp3"
   },
   {
     "id": 37,
@@ -261,6 +261,285 @@ const quotes = [
     "year": 2016,
     "image": "images/10-3.png",
     "music": "music/the-full-time-wife-escapist.mp3"
+  },
+  {
+    "id": 66,
+    "japanese": "すぐに結果に結びつかなくても、後から出る努力もある",
+    "chinese": "有些努力不是立刻见效，是后来才兑现。",
+    "drama": "短剧开始啦",
+    "year": 2021,
+    "image": "images/11-1.png",
+    "music": "music/short-drama-starts.mp3"
+  },
+  {
+    "id": 67,
+    "japanese": "いっぱい笑って終わろ，悔いのないように",
+    "chinese": "好好笑着结束吧，别留下遗憾",
+    "drama": "短剧开始啦",
+    "year": 2021,
+    "image": "images/11-2.png",
+    "music": "music/short-drama-starts.mp3"
+  },
+  {
+    "id": 68,
+    "japanese": "動き出すきっかけになれば、それでいい",
+    "chinese": "只要能成为你开始行动的契机，就够了",
+    "drama": "短剧开始啦",
+    "year": 2021,
+    "image": "images/11-3.png",
+    "music": "music/short-drama-starts.mp3"
+  },
+  {
+    "id": 69,
+    "japanese": "真実は一つなんかじゃない。でも、事実は一つです。",
+    "chinese": "真相不是唯一的，但事实只有一个",
+    "drama": "勿言推理",
+    "year": 2022,
+    "image": "images/12-1.png",
+    "music": "music/no-talk.mp3"
+  },
+  {
+    "id": 70,
+    "japanese": "普通って、誰が決めるんですか",
+    "chinese": ""普通"是谁决定的",
+    "drama": "勿言推理",
+    "year": 2022,
+    "image": "images/12-2.png",
+    "music": "music/short-drama-starts.mp3"
+  },
+  {
+    "id": 71,
+    "japanese": "好きで、大切なものほど、摂取するのは元気な時にしたい",
+    "chinese": "越是喜欢、越珍贵的东西，越想在自己有力气时去享受",
+    "drama": "花束般的恋爱",
+    "year": 2021,
+    "image": "images/13-1.png",
+    "music": "music/flower-love.mp3"
+  },
+  {
+    "id": 72,
+    "japanese": "タイトルそのものが、名言みたい",
+    "chinese": "光是片名本身，就像一句名言",
+    "drama": "花束般的恋爱",
+    "year": 2021,
+    "image": "images/13-2.png",
+    "music": "music/flower-love.mp3"
+  },
+  {
+    "id": 73,
+    "japanese": "終わりがあっても、意味は消えない",
+    "chinese": "即使结束了，意义也不会消失",
+    "drama": "花束般的恋爱",
+    "year": 2021,
+    "image": "images/13-3.png",
+    "music": "music/flower-love.mp3"
+  },
+  {
+    "id": 74,
+    "japanese": "あの頃は 確かに幸せだった",
+    "chinese": "那时候确实幸福过",
+    "drama": "花束般的恋爱",
+    "year": 2021,
+    "image": "images/13-4.png",
+    "music": "music/flower-love.mp3"
+  },
+  {
+    "id": 75,
+    "japanese": "変わっていくのは、悪いことじゃない",
+    "chinese": "变了也不是坏事",
+    "drama": "花束般的恋爱",
+    "year": 2021,
+    "image": "images/13-5.png",
+    "music": "music/flower-love.mp3"
+  },
+  {
+    "id": 76,
+    "japanese": "会いたいって思うことが恋",
+    "chinese": "想见面，这就是恋爱",
+    "drama": "恋爱世纪",
+    "year": 1997,
+    "image": "images/14-1.png",
+    "music": "music/love-century.mp3"
+  },
+  {
+    "id": 77,
+    "japanese": "哲平は、好き好き好きだ",
+    "chinese": "哲平，喜欢喜欢喜欢你！",
+    "drama": "恋爱世纪",
+    "year": 1997,
+    "image": "images/14-2.png",
+    "music": "music/love-century.mp3"
+  },
+  {
+    "id": 78,
+    "japanese": "幸せって、好きな人がいるってこと",
+    "chinese": "幸福就是：有一个喜欢的人",
+    "drama": "恋爱世纪",
+    "year": 1997,
+    "image": "images/14-3.png",
+    "music": "music/love-century.mp3"
+  },
+  {
+    "id": 80,
+    "japanese": "一人で生きていけるけど…（その先は分からない）。",
+    "chinese": "我能一个人活下去，但……（后面的事谁也说不准）",
+    "drama": "大豆田永久子和三名前夫",
+    "year": 2021,
+    "image": "images/15-3.png",
+    "music": "music/ex-husband.mp3"
+  },
+  {
+    "id": 83,
+    "japanese": "幸せを諦めない",
+    "chinese": "我不放弃幸福",
+    "drama": "大豆田永久子和三名前夫",
+    "year": 2021,
+    "image": "images/15-5.png",
+    "music": "music/ex-husband.mp3"
+  },
+  {
+    "id": 84,
+    "japanese": "生きてりゃ何回でも勝つチャンスがある",
+    "chinese": "只要活着，就还有无数次赢的机会",
+    "drama": "MIU404",
+    "year": 2020,
+    "image": "images/16-1.png",
+    "music": "music/MIU404.mp3"
+  },
+  {
+    "id": 85,
+    "japanese": "無事に帰るのが仕事",
+    "chinese": "平安回来，就是工作",
+    "drama": "MIU404",
+    "year": 2020,
+    "image": "images/16-2.png",
+    "music": "music/MIU404.mp3"
+  },
+  {
+    "id": 86,
+    "japanese": "あのー、実は俺、宇宙人なのね",
+    "chinese": "那个……其实我，是外星人",
+    "drama": "热点",
+    "year": 2025,
+    "image": "images/17-1.png",
+    "music": "music/hot-spot.mp3"
+  },
+  {
+    "id": 87,
+    "japanese": "地球って、たいへんですね",
+    "chinese": "地球，真的很辛苦呢",
+    "drama": "热点",
+    "year": 2025,
+    "image": "images/17-4.png",
+    "music": "music/hot-spot.mp3"
+  },
+  {
+    "id": 88,
+    "japanese": "本来、私が言うことじゃないんですけど",
+    "chinese": "其实这件事不该我来说的……",
+    "drama": "热点",
+    "year": 2025,
+    "image": "images/17-5.png",
+    "music": "music/hot-spot.mp3"
+  },
+  {
+    "id": 90,
+    "japanese": "僕の星では、そんなことしません",
+    "chinese": "在我们星球，不这么搞",
+    "drama": "热点",
+    "year": 2025,
+    "image": "images/17-3.png",
+    "music": "music/hot-spot.mp3"
+  },
+  {
+    "id": 93,
+    "japanese": "言葉足らずが、悲劇の引き金になる",
+    "chinese": "话说不够，常常就是悲剧的导火索",
+    "drama": "凪的新生活",
+    "year": 2019,
+    "image": "images/18-5.png",
+    "music": "music/new-life.mp3"
+  },
+  {
+    "id": 94,
+    "japanese": "キライなことを口に出して自覚すると、ラクになることもある",
+    "chinese": "把讨厌的事说出来并承认，有时反而轻松",
+    "drama": "凪的新生活",
+    "year": 2019,
+    "image": "images/18-3.png",
+    "music": "music/new-life.mp3"
+  },
+  {
+    "id": 95,
+    "japanese": "ちゃんと疲れてる自分を、ちゃんと認めたい",
+    "chinese": "我想好好承认：自己是真的累了",
+    "drama": "凪的新生活",
+    "year": 2019,
+    "image": "images/18-2.png",
+    "music": "music/new-life.mp3"
+  },
+  {
+    "id": 97,
+    "japanese": "あの頃は、もっと良くなると思ってた",
+    "chinese": "那时候啊，我们以为一切会变好",
+    "drama": "热点",
+    "year": 2025,
+    "image": "images/17-2.png",
+    "music": "music/hot-spot.mp3"
+  },
+  {
+    "id": 100,
+    "japanese": "しばしお暇いただきます",
+    "chinese": "我先请个"暂时的假"",
+    "drama": "凪的新生活",
+    "year": 2019,
+    "image": "images/18-1.png",
+    "music": "music/new-life.mp3"
+  },
+  {
+    "id": 101,
+    "japanese": "空気は読むものじゃなくて、吸って吐くものだ",
+    "chinese": "空气不是用来读的，是用来吸和呼的",
+    "drama": "凪的新生活",
+    "year": 2019,
+    "image": "images/18-6.png",
+    "music": "music/new-life.mp3"
+  },
+  {
+    "id": 102,
+    "japanese": "無理しないって、練習がいる",
+    "chinese": "不勉强自己，其实也是需要练习的",
+    "drama": "凪的新生活",
+    "year": 2019,
+    "image": "images/18-4.png",
+    "music": "music/new-life.mp3"
+  },
+  {
+    "id": 104,
+    "japanese": "100円拾って使うのは犯罪だけど、100回離婚したって犯罪じゃない",
+    "chinese": "捡到 100 日元花掉是犯罪，但离婚 100 次不算犯罪",
+    "drama": "大豆田永久子和三名前夫",
+    "year": 2021,
+    "image": "images/15-8.png",
+    "music": "music/ex-husband.mp3"
+  },
+  {
+    "id": 105,
+    "japanese": "人生に失敗はあったって、失敗した人生なんてない",
+    "chinese": "人生会失败，但不存在"失败的人生"",
+    "drama": "大豆田永久子和三名前夫",
+    "year": 2021,
+    "image": "images/15-9.png",
+    "music": "music/ex-husband.mp3"
+  },
+  {
+    "id": 106,
+    "japanese": "無理に仲良くならなくてもいい",
+    "chinese": "不用勉强自己和谁变得亲密",
+    "drama": "西瓜",
+    "year": 2003,
+    "image": "images/20-1.png",
+    "music": "music/watermelon.mp3"
   }
 ];
 
