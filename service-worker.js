@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daily-quote-v1';
+const CACHE_NAME = 'daily-quote-v2';
 const urlsToCache = [
   '/index.html',
   '/admin.html',
