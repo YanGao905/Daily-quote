@@ -2,6 +2,21 @@
 let currentDayOffset = 0; // 默认显示今天
 let isAnimating = false;
 
+// 解析振假名格式：{汉字}[かんじ] => <ruby>汉字<rt>かんじ</rt></ruby>
+// 支持两种格式：{汉字}[读音] 或直接 汉字[读音]（自动识别1-4个字符）
+function parseFurigana(text) {
+    if (!text) return '';
+
+    // 首先处理 {汉字}[读音] 格式（更精确）
+    text = text.replace(/\{([^\}]+)\}\[([^\]]+)\]/g, '<ruby>$1<rt>$2</rt></ruby>');
+
+    // 然后处理简单格式：匹配1-4个汉字/假名字符后跟[读音]
+    // 这个正则会匹配[之前的1-4个字符作为需要标注的部分
+    text = text.replace(/([^\s\[\]{}<>]{1,4})\[([^\]]+)\]/g, '<ruby>$1<rt>$2</rt></ruby>');
+
+    return text;
+}
+
 // 从 localStorage 加载数据（优先）或使用 quotes.js 中的数据
 function loadQuotes() {
     const savedQuotes = localStorage.getItem('dailyQuotes');
@@ -192,7 +207,12 @@ function updatePage(direction = 'up') {
     imageElement.parentElement.classList.remove('fade-in', 'fade-in-down', 'fade-in-3', 'fade-in-reverse-3');
     
     // 更新内容
-    japaneseQuote.textContent = quote.japanese;
+    // 如果有振假名，使用振假名并解析；否则使用普通日文
+    if (quote.furigana) {
+        japaneseQuote.innerHTML = parseFurigana(quote.furigana);
+    } else {
+        japaneseQuote.textContent = quote.japanese;
+    }
     chineseQuote.textContent = quote.chinese;
     imageElement.src = quote.image;
     imageElement.alt = `${quote.drama} (${quote.year})`;
