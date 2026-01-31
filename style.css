@@ -111,6 +111,75 @@ html {
     box-shadow: 0 4px 20px rgba(0,0,0,0.25);
 }
 
+/* 日语台词行（台词+朗读按钮） */
+.japanese-line {
+    display: inline;
+    text-align: center;
+}
+
+.japanese-quote {
+    display: inline;
+}
+
+/* 内联朗读按钮 */
+.speak-btn-inline {
+    background: transparent;
+    border: none;
+    outline: none !important;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: baseline;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    margin: 0 0 0 6px;
+    position: relative;
+    top: 0;
+    height: 22px;
+}
+
+.speak-btn-inline:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.speak-btn-inline:hover {
+    opacity: 1;
+    background: rgba(66, 66, 66, 0.08);
+    transform: scale(1.1);
+}
+
+.speak-btn-inline:active {
+    transform: scale(0.95);
+}
+
+.speak-btn-inline svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.speak-btn-inline.speaking {
+    opacity: 1;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.speak-btn-inline.speaking svg {
+    animation: soundWave 1.5s ease-in-out infinite;
+}
+
+@keyframes soundWave {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+}
+
 /* Music Button */
 .music-btn {
     position: absolute;
@@ -398,15 +467,42 @@ html {
     gap: 8px;
     align-items: center;
     text-align: center;
+    justify-content: center;
 }
 
 .japanese-quote {
     font-family: 'Hiragino Mincho Pro', 'Yu Mincho', serif;
     font-size: 22px;
-    line-height: 1.5;
+    line-height: 1.8;
     color: #212121;
     font-weight: 300;
-    max-width: 100%;
+    display: inline;
+}
+
+/* 振假名样式 */
+ruby {
+    ruby-position: over;
+    ruby-align: center;
+    display: ruby !important;
+    /* 继承父元素的动画和透明度 */
+    opacity: inherit;
+    animation: inherit;
+    transform: inherit;
+}
+
+rt {
+    display: ruby-text !important;
+    font-size: 0.45em;
+    line-height: 1.2;
+    color: #666666;
+    font-weight: 300;
+    user-select: none;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+    /* 确保振假名和台词完全同步 */
+    opacity: inherit;
+    animation: inherit;
+    transform: inherit;
 }
 
 .chinese-quote {
@@ -813,29 +909,45 @@ html {
         width: 280px;  /* 从240px增加到280px */
         height: 280px;
     }
-    
+
     .image-section img {
         width: 280px;
         height: 280px;
     }
-    
+
     /* 文字区域优化，减少左右padding */
     .quote-section {
         top: 100px;
         padding: 0 24px; /* 从32px减少到24px，两边留白更少 */
     }
-    
+
     /* 字号调整 */
     .japanese-quote {
         font-size: 24px; /* 从22px增加到24px */
-        line-height: 1.4;
+        line-height: 1.6; /* 增加行高，为振假名留出更多空间 */
     }
-    
+
     .chinese-quote {
         font-family: 'Source Han Serif TC', 'Noto Serif TC', serif;
         font-weight: 300;
         font-size: 14px;
         font-feature-settings: "locl" 1;
         text-rendering: optimizeLegibility;
+    }
+
+    /* 移动端振假名优化 */
+    .japanese-quote rt {
+        font-size: 0.42em; /* 移动端稍微缩小振假名 */
+        letter-spacing: 0.08em;
+    }
+
+    /* 移动端朗读按钮优化 */
+    .speak-btn-inline {
+        padding: 8px;
+    }
+
+    .speak-btn-inline svg {
+        width: 22px;
+        height: 22px;
     }
 }

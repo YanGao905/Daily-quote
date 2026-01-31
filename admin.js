@@ -1,6 +1,21 @@
 // 从 localStorage 加载或初始化数据
 let adminQuotes = [];
 
+// 解析振假名格式：{汉字}[かんじ] => <ruby>汉字<rt>かんじ</rt></ruby>
+// 支持两种格式：{汉字}[读音] 或直接 汉字[读音]（自动识别1-4个字符）
+function parseFurigana(text) {
+    if (!text) return '';
+
+    // 首先处理 {汉字}[读音] 格式（更精确）
+    text = text.replace(/\{([^\}]+)\}\[([^\]]+)\]/g, '<ruby>$1<rt>$2</rt></ruby>');
+
+    // 然后处理简单格式：匹配1-4个汉字/假名字符后跟[读音]
+    // 这个正则会匹配[之前的1-4个字符作为需要标注的部分
+    text = text.replace(/([^\s\[\]{}<>]{1,4})\[([^\]]+)\]/g, '<ruby>$1<rt>$2</rt></ruby>');
+
+    return text;
+}
+
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
     // 初始化全局音乐播放器（在管理页面继续播放音乐）
@@ -152,8 +167,9 @@ function setupEventListeners() {
 function handleFormSubmit(e) {
     e.preventDefault();
     console.log('表单提交被触发');
-    
+
     const japanese = document.getElementById('japanese').value.trim();
+    const furigana = document.getElementById('furigana').value.trim();
     const chinese = document.getElementById('chinese').value.trim();
     const drama = document.getElementById('drama').value.trim();
     const year = parseInt(document.getElementById('year').value);
@@ -162,8 +178,8 @@ function handleFormSubmit(e) {
     const musicUrl = document.getElementById('music').value.trim();
     const musicUploadElement = document.getElementById('music-upload');
     const musicFile = musicUploadElement ? musicUploadElement.files[0] : null;
-    
-    console.log('表单数据:', { japanese, chinese, drama, year, imageUrl, musicUrl, hasImageFile: !!imageFile, hasMusicFile: !!musicFile });
+
+    console.log('表单数据:', { japanese, furigana, chinese, drama, year, imageUrl, musicUrl, hasImageFile: !!imageFile, hasMusicFile: !!musicFile });
     
     // 验证必填字段
     if (!japanese || !chinese || !drama || !year) {
@@ -205,9 +221,9 @@ function handleFormSubmit(e) {
         }
         
         console.log('准备添加台词...');
-        addQuoteWithData(japanese, chinese, drama, year, finalImageData, finalMusicData);
+        addQuoteWithData(japanese, furigana, chinese, drama, year, finalImageData, finalMusicData);
     };
-    
+
     console.log('调用processData...');
     processData().catch(error => {
         console.error('processData执行失败:', error);
@@ -216,9 +232,9 @@ function handleFormSubmit(e) {
 }
 
 // 添加台词（带图片和音乐数据）
-function addQuoteWithData(japanese, chinese, drama, year, imageData, musicData) {
+function addQuoteWithData(japanese, furigana, chinese, drama, year, imageData, musicData) {
     console.log('开始添加台词...');
-    
+
     try {
         const newQuote = {
             id: adminQuotes.length > 0 ? Math.max(...adminQuotes.map(q => q.id)) + 1 : 1,
@@ -228,7 +244,12 @@ function addQuoteWithData(japanese, chinese, drama, year, imageData, musicData) 
             year,
             image: imageData
         };
-        
+
+        // 只有当有振假名数据时才添加furigana字段
+        if (furigana) {
+            newQuote.furigana = furigana;
+        }
+
         // 只有当有音乐数据时才添加music字段
         if (musicData) {
             newQuote.music = musicData;
@@ -373,7 +394,7 @@ function renderQuotesList() {
         return `
         <div class="quote-card" data-id="${quote.id}">
             <img src="${quote.image}" alt="${quote.drama}" class="quote-card-image" onerror="if(this.src!=='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27324%27 height=%27180%27%3E%3Crect fill=%27%23e8e8e8%27 width=%27324%27 height=%27180%27/%3E%3Ctext x=%27162%27 y=%2795%27 font-size=%2718%27 text-anchor=%27middle%27 fill=%27%23999%27%3E暂无图片%3C/text%3E%3C/svg%3E')this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27324%27 height=%27180%27%3E%3Crect fill=%27%23e8e8e8%27 width=%27324%27 height=%27180%27/%3E%3Ctext x=%27162%27 y=%2795%27 font-size=%2718%27 text-anchor=%27middle%27 fill=%27%23999%27%3E暂无图片%3C/text%3E%3C/svg%3E'">
-            <div class="quote-card-japanese">${quote.japanese}</div>
+            <div class="quote-card-japanese">${quote.furigana ? parseFurigana(quote.furigana) : quote.japanese}</div>
             <div class="quote-card-chinese">${quote.chinese}</div>
             <div class="quote-card-info">${quote.drama} (${quote.year})</div>
             <div class="quote-card-actions">
@@ -398,13 +419,14 @@ function deleteQuote(id) {
 function editQuote(id) {
     const quote = adminQuotes.find(q => q.id === id);
     if (!quote) return;
-    
+
     document.getElementById('japanese').value = quote.japanese;
+    document.getElementById('furigana').value = quote.furigana || '';
     document.getElementById('chinese').value = quote.chinese;
     document.getElementById('drama').value = quote.drama;
     document.getElementById('year').value = quote.year;
     document.getElementById('image-url').value = quote.image.startsWith('data:') ? '' : quote.image;
-    
+
     // 如果有音乐字段，填充音乐路径
     if (quote.music) {
         document.getElementById('music').value = quote.music.startsWith('data:') ? '' : quote.music;

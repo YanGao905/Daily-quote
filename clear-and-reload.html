@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清除并重载数据</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        .btn-clear {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-clear:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 恢复振假名数据</h1>
+
+        <div class="status warning">
+            <p><strong>⚠️ 发现问题：</strong></p>
+            <p>localStorage 中的台词数据缺少振假名字段</p>
+        </div>
+
+        <div class="status" id="status">
+            <p>点击下方按钮清除 localStorage，</p>
+            <p>应用将使用原始的、带振假名的台词数据</p>
+        </div>
+
+        <button class="btn-clear" onclick="clearAndReload()">
+            🗑️ 清除并恢复原始数据
+        </button>
+
+        <button class="btn-cancel" onclick="window.close()">
+            ❌ 取消
+        </button>
+    </div>
+
+    <script>
+        function clearAndReload() {
+            try {
+                // 清除台词数据
+                localStorage.removeItem('dailyQuotes');
+                localStorage.removeItem('todayDefaultQuote');
+
+                // 显示成功消息
+                const status = document.getElementById('status');
+                status.className = 'status success';
+                status.innerHTML = `
+                    <p><strong>✅ 清除成功！</strong></p>
+                    <p>正在跳转到主应用...</p>
+                `;
+
+                // 2秒后跳转
+                setTimeout(() => {
+                    window.location.href = 'http://localhost:8080/index.html';
+                }, 2000);
+            } catch (e) {
+                alert('清除失败: ' + e.message);
+            }
+        }
+    </script>
+</body>
+</html>

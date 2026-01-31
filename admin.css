@@ -295,6 +295,19 @@ body {
     font-family: 'Hiragino Mincho Pro', serif;
 }
 
+/* 振假名样式 */
+.quote-card-japanese ruby {
+    ruby-position: over;
+}
+
+.quote-card-japanese rt {
+    font-size: 0.5em;
+    line-height: 1;
+    color: #424242;
+    font-weight: 300;
+    user-select: none;
+}
+
 .quote-card-chinese {
     font-size: 14px;
     color: #616161;
