@@ -202,7 +202,7 @@ function getQuoteByOffset(offset) {
     
     let selectedQuote;
     
-    // 获取前一天的绑定信息（用于避免同剧）
+    // 获取前一天和后一天的绑定信息（用于避免同剧）
     const yesterday = new Date(targetDate);
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayKey = yesterday.getFullYear() + '-' + 
@@ -211,16 +211,29 @@ function getQuoteByOffset(offset) {
     const yesterdayId = dateBindings[yesterdayKey];
     const yesterdayQuote = yesterdayId ? allQuotes.find(q => q.id === yesterdayId) : null;
     
+    const tomorrow = new Date(targetDate);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowKey = tomorrow.getFullYear() + '-' + 
+                        String(tomorrow.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(tomorrow.getDate()).padStart(2, '0');
+    const tomorrowId = dateBindings[tomorrowKey];
+    const tomorrowQuote = tomorrowId ? allQuotes.find(q => q.id === tomorrowId) : null;
+    
+    // 收集需要避免的剧名
+    const dramasToAvoid = new Set();
+    if (yesterdayQuote) dramasToAvoid.add(yesterdayQuote.drama);
+    if (tomorrowQuote) dramasToAvoid.add(tomorrowQuote.drama);
+    
     // 前7天（基准日及往回6天）使用固定的精选内容
     if (daysDiff >= -6 && daysDiff <= 0 && typeof firstTimeQuoteIds !== 'undefined') {
         const arrayIndex = Math.abs(daysDiff);  // daysDiff=0→index 0, daysDiff=-1→index 1
         const selectedId = firstTimeQuoteIds[arrayIndex];
         selectedQuote = allQuotes.find(q => q.id === selectedId);
         
-        // 如果精选内容和前一天同剧，选择不同的
-        if (selectedQuote && yesterdayQuote && selectedQuote.drama === yesterdayQuote.drama) {
-            console.log(`⚠️ 精选内容《${selectedQuote.drama}》与前一天重复，重新选择...`);
-            const differentDramaQuotes = allQuotes.filter(q => q.drama !== yesterdayQuote.drama);
+        // 如果精选内容和相邻天同剧，选择不同的
+        if (selectedQuote && dramasToAvoid.has(selectedQuote.drama)) {
+            console.log(`⚠️ 精选内容《${selectedQuote.drama}》与相邻天重复，重新选择...`);
+            const differentDramaQuotes = allQuotes.filter(q => !dramasToAvoid.has(q.drama));
             if (differentDramaQuotes.length > 0) {
                 const dateHash = parseInt(dateKey.replace(/-/g, ''));
                 const index = dateHash % differentDramaQuotes.length;
@@ -237,22 +250,22 @@ function getQuoteByOffset(offset) {
     
     // 如果不是前7天，或者前7天没找到，就自动选择
     if (!selectedQuote) {
-        if (yesterdayQuote) {
-            // 前一天有记录，找一个不同剧的台词
-            const differentDramaQuotes = allQuotes.filter(q => q.drama !== yesterdayQuote.drama);
+        if (dramasToAvoid.size > 0) {
+            // 相邻天有记录，找一个不同剧的台词
+            const differentDramaQuotes = allQuotes.filter(q => !dramasToAvoid.has(q.drama));
             
             if (differentDramaQuotes.length > 0) {
                 const dateHash = parseInt(dateKey.replace(/-/g, ''));
                 const index = dateHash % differentDramaQuotes.length;
                 selectedQuote = differentDramaQuotes[index];
-                console.log(`🔄 避免重复《${yesterdayQuote.drama}》，选择《${selectedQuote.drama}》`);
+                console.log(`🔄 避免重复 ${[...dramasToAvoid].map(d => '《' + d + '》').join('、')}，选择《${selectedQuote.drama}》`);
             } else {
                 const dateHash = parseInt(dateKey.replace(/-/g, ''));
                 const index = dateHash % allQuotes.length;
                 selectedQuote = allQuotes[index];
             }
         } else {
-            // 前一天没有记录，基于日期哈希选择
+            // 相邻天没有记录，基于日期哈希选择
             const dateHash = parseInt(dateKey.replace(/-/g, ''));
             const index = dateHash % allQuotes.length;
             selectedQuote = allQuotes[index];
