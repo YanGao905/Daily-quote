@@ -202,11 +202,32 @@ function getQuoteByOffset(offset) {
     
     let selectedQuote;
     
+    // 获取前一天的绑定信息（用于避免同剧）
+    const yesterday = new Date(targetDate);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayKey = yesterday.getFullYear() + '-' + 
+                        String(yesterday.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(yesterday.getDate()).padStart(2, '0');
+    const yesterdayId = dateBindings[yesterdayKey];
+    const yesterdayQuote = yesterdayId ? allQuotes.find(q => q.id === yesterdayId) : null;
+    
     // 前7天（基准日及往回6天）使用固定的精选内容
     if (daysDiff >= -6 && daysDiff <= 0 && typeof firstTimeQuoteIds !== 'undefined') {
         const arrayIndex = Math.abs(daysDiff);  // daysDiff=0→index 0, daysDiff=-1→index 1
         const selectedId = firstTimeQuoteIds[arrayIndex];
         selectedQuote = allQuotes.find(q => q.id === selectedId);
+        
+        // 如果精选内容和前一天同剧，选择不同的
+        if (selectedQuote && yesterdayQuote && selectedQuote.drama === yesterdayQuote.drama) {
+            console.log(`⚠️ 精选内容《${selectedQuote.drama}》与前一天重复，重新选择...`);
+            const differentDramaQuotes = allQuotes.filter(q => q.drama !== yesterdayQuote.drama);
+            if (differentDramaQuotes.length > 0) {
+                const dateHash = parseInt(dateKey.replace(/-/g, ''));
+                const index = dateHash % differentDramaQuotes.length;
+                selectedQuote = differentDramaQuotes[index];
+            }
+        }
+        
         if (selectedQuote) {
             console.log(`✨ 使用精选内容: daysDiff=${daysDiff}, arrayIndex=${arrayIndex}, id=${selectedId}, ${selectedQuote.drama}`);
         } else {
@@ -216,25 +237,15 @@ function getQuoteByOffset(offset) {
     
     // 如果不是前7天，或者前7天没找到，就自动选择
     if (!selectedQuote) {
-        // 检查前一天绑定的台词，避免同一部剧
-        const yesterday = new Date(targetDate);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayKey = yesterday.getFullYear() + '-' + 
-                            String(yesterday.getMonth() + 1).padStart(2, '0') + '-' + 
-                            String(yesterday.getDate()).padStart(2, '0');
-        
-        const yesterdayId = dateBindings[yesterdayKey];
-        
-        if (yesterdayId) {
+        if (yesterdayQuote) {
             // 前一天有记录，找一个不同剧的台词
-            const yesterdayQuote = allQuotes.find(q => q.id === yesterdayId);
-            const differentDramaQuotes = allQuotes.filter(q => q.drama !== yesterdayQuote?.drama);
+            const differentDramaQuotes = allQuotes.filter(q => q.drama !== yesterdayQuote.drama);
             
             if (differentDramaQuotes.length > 0) {
                 const dateHash = parseInt(dateKey.replace(/-/g, ''));
                 const index = dateHash % differentDramaQuotes.length;
                 selectedQuote = differentDramaQuotes[index];
-                console.log(`🔄 避免重复《${yesterdayQuote?.drama}》，选择《${selectedQuote.drama}》`);
+                console.log(`🔄 避免重复《${yesterdayQuote.drama}》，选择《${selectedQuote.drama}》`);
             } else {
                 const dateHash = parseInt(dateKey.replace(/-/g, ''));
                 const index = dateHash % allQuotes.length;
