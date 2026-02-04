@@ -257,6 +257,14 @@ function getQuoteByOffset(offset) {
     return selectedQuote;
 }
 
+// 解析振假名格式：{汉字}[かんじ] => <ruby>汉字<rt>かんじ</rt></ruby>
+function parseFurigana(text) {
+    if (!text) return '';
+    // 处理 {汉字}[读音] 格式
+    text = text.replace(/\{([^\}]+)\}\[([^\]]+)\]/g, '<ruby>$1<rt>$2</rt></ruby>');
+    return text;
+}
+
 // 更新UI显示
 function updateDisplay(offset = 0, direction = 0) {
     const container = document.getElementById('container');
@@ -314,8 +322,13 @@ function updateDisplay(offset = 0, direction = 0) {
         return;
     }
     
-    // 更新台词
-    document.getElementById('japanese-quote').textContent = quote.japanese || '';
+    // 更新台词（使用振假名）
+    const jpElement = document.getElementById('japanese-quote');
+    if (quote.furigana) {
+        jpElement.innerHTML = parseFurigana(quote.furigana);
+    } else {
+        jpElement.textContent = quote.japanese || '';
+    }
     document.getElementById('chinese-quote').textContent = quote.chinese || '';
     document.getElementById('drama-info').textContent = `${quote.drama || ''} ${quote.year ? '(' + quote.year + ')' : ''}`;
     

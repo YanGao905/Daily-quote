@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>振り仮名テスト - Furigana Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Mincho Pro', 'Yu Mincho', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #f6f8ea;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 800px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #212121;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 300;
+        }
+
+        .test-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .test-section h2 {
+            font-size: 16px;
+            color: #616161;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .japanese-quote {
+            font-size: 24px;
+            line-height: 1.8;
+            color: #212121;
+            font-weight: 300;
+            margin-bottom: 12px;
+        }
+
+        .chinese-quote {
+            font-family: 'SF Compact', 'Noto Sans SC', sans-serif;
+            font-size: 16px;
+            color: #616161;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .drama-info {
+            font-family: 'SF Compact', 'Noto Sans JP', sans-serif;
+            font-size: 14px;
+            color: #9E9E9E;
+            margin-top: 8px;
+            font-weight: 350;
+        }
+
+        /* 振り仮名样式 */
+        ruby {
+            ruby-align: center;
+        }
+
+        rt {
+            font-family: 'Hiragino Kaku Gothic Pro', 'Yu Gothic', sans-serif;
+            font-size: 11px;
+            color: #616161;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+            margin: 30px 0;
+        }
+
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .japanese-quote {
+                font-size: 20px;
+            }
+
+            rt {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>振り仮名テスト / 振假名测试</h1>
+
+        <div class="test-section">
+            <h2>示例 1: 悠长假期</h2>
+            <div class="japanese-quote">
+                <ruby>人生<rt>じんせい</rt></ruby>には、<ruby>長<rt>なが</rt></ruby>い<ruby>休<rt>やす</rt></ruby>みが<ruby>必要<rt>ひつよう</rt></ruby>な<ruby>時<rt>とき</rt></ruby>もあるのよ
+            </div>
+            <div class="chinese-quote">人生啊，也会有需要放长假的时候</div>
+            <div class="drama-info">悠长假期 (1996)</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="test-section">
+            <h2>示例 2: 深夜食堂</h2>
+            <div class="japanese-quote">
+                ここに<ruby>来<rt>く</rt></ruby>れば、<ruby>誰<rt>だれ</rt></ruby>かがいる
+            </div>
+            <div class="chinese-quote">只要来这里，就一定有人在</div>
+            <div class="drama-info">深夜食堂 (2009)</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="test-section">
+            <h2>示例 3: 四重奏</h2>
+            <div class="japanese-quote">
+                <ruby>人生<rt>じんせい</rt></ruby>には<ruby>三<rt>みっ</rt></ruby>つの<ruby>坂<rt>さか</rt></ruby>がある，<ruby>上<rt>のぼ</rt></ruby>り<ruby>坂<rt>ざか</rt></ruby>、<ruby>下<rt>くだ</rt></ruby>り<ruby>坂<rt>ざか</rt></ruby>、まさか
+            </div>
+            <div class="chinese-quote">人生有三种坡：上坡、下坡、没想到</div>
+            <div class="drama-info">四重奏 (2017)</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="test-section">
+            <h2>示例 4: 逃避可耻但有用</h2>
+            <div class="japanese-quote">
+                <ruby>逃<rt>に</rt></ruby>げてもいい。<ruby>生<rt>い</rt></ruby>き<ruby>抜<rt>ぬ</rt></ruby>くことのほうが<ruby>大切<rt>たいせつ</rt></ruby>だ
+            </div>
+            <div class="chinese-quote">逃也没关系，活下去更重要</div>
+            <div class="drama-info">逃避可耻但有用 (2016)</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="test-section">
+            <h2>示例 5: 我们由奇迹构成</h2>
+            <div class="japanese-quote">
+                <ruby>意味<rt>いみ</rt></ruby>がなくても、<ruby>好<rt>す</rt></ruby>きでいい
+            </div>
+            <div class="chinese-quote">就算没有意义，也可以喜欢</div>
+            <div class="drama-info">我们由奇迹构成 (2018)</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="test-section">
+            <h2>示例 6: 重启人生</h2>
+            <div class="japanese-quote">
+                <ruby>人生<rt>じんせい</rt></ruby>は<ruby>思<rt>おも</rt></ruby>っているより、やり<ruby>直<rt>なお</rt></ruby>せる
+            </div>
+            <div class="chinese-quote">人生比想象中更能重来</div>
+            <div class="drama-info">重启人生 (2023)</div>
+        </div>
+
+        <div class="note">
+            💡 <strong>说明：</strong>汉字上方的小字是<strong>振り仮名（振假名）</strong>，用于标注日语汉字的读音。这是日语学习和阅读中常见的辅助标注方式。
+        </div>
+    </div>
+</body>
+</html>
